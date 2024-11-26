@@ -13,6 +13,9 @@ use App\Http\Controllers\AuthGoogleController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\CardController;
+use App\Http\Controllers\CardListController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -30,7 +33,27 @@ Route::post('/verifyOtp', [VerificationController::class, 'verifyOtp']);
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    
+    Route::controller(ProjectController::class)->group(function() {
+        Route::get('/project', 'index');
+        Route::get('/user/{userId}/project', 'getUserProject');
+        Route::get('/project/{projectId}', 'getProjectDetail');
+        Route::post('/project', 'store');
+        Route::put('/project', 'update');
+    });
+
+    Route::controller(CardListController::class)->group(function() {
+        Route::get('/project/{projectId}/list', 'index');
+        Route::post('/list', 'store');
+        Route::put('/list/{listId}', 'update');
+        Route::delete('/list/{listId}', 'delete');
+    });
+
+    Route::controller(CardController::class)->group(function() {
+        // Route::get('/list/{listId}/card', 'index');
+        Route::post('/list/{listId}/card', 'store');
+        Route::put('/card/{cardId}', 'update');
+        Route::delete('/card/{cardId}', 'delete');
+    });
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

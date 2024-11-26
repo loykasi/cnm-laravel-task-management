@@ -16,4 +16,7 @@ Broadcast::channel('message-channel', function ($user) {
 });
 
 
-
+Broadcast::channel('project.{id}', function ($user, $id) {
+    // return (int) $user->id === Project::find($projectId)->userId;
+    return true;
+});
