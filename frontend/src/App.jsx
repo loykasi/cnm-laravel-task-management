@@ -16,9 +16,10 @@ import Dashboard from "./Component/Admin/Dashboard";
 import ChangePassword from "./Component/Admin/ChangePassword";
 import ForgotPassword from "./Component/Admin/ForgotPassword";
 import UsersList from "./Component/Admin/Users/UsersList";
-
 import RoomsList from "./Component/Admin/Rooms/RoomsList";
 
+import KanbanBoard from "./pages/KanbanBoard";
+import Home from "./pages/Home";
 
 const App = () => {
   return (
@@ -30,8 +31,11 @@ const App = () => {
         <Route path="/forget" element={<ForgetPass />} />
         <Route path="/reset-password" element={<ResetPassPage />} />
         <Route path="/test" element={<Navbar />} />
-        <Route path="/home" element={<HomePage />} />
         <Route path="/OTP" element={<OTPInput />} />
+
+        <Route path="/home" element={<Home />} >
+          <Route path="project/:id" element={<KanbanBoard />} />
+        </Route>
 
         <Route path="/admin/login" element={<Login />} />
         <Route path="/admin/forgot-password" element={<ForgotPassword />} />
@@ -45,7 +49,6 @@ const App = () => {
           {/* Quản lý Phòng */}
           <Route path="rooms">
             <Route index element={<RoomsList />} />
-
           </Route>
         </Route>
       </Routes>
