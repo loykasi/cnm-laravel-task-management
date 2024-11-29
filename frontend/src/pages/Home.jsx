@@ -1,7 +1,76 @@
 import { BrowserRouter as Router, Route, Routes, Outlet } from "react-router-dom";
 import KanbanBoard from "./KanbanBoard";
+import { useParams } from "react-router-dom";
+
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const Home = () => {
+    const [showMembers, setShowMembers] = useState(false); // Controls showing members list
+    const [showAddMemberModal, setShowAddMemberModal] = useState(false); // Controls modal visibility
+    const [members, setMembers] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [selectedMember, setSelectedMember] = useState(null); // To store selected member from combo box
+    const { id } = useParams();
+
+        // Fetch project members
+    useEffect(() => {
+        fetchProjectMembers();
+    }, []);
+
+    const fetchProjectMembers = async () => {
+        // try {
+        // const token = localStorage.getItem('auth_token');
+        // const response = await axios.get(`http://localhost:8000/api/projects/${id}/members`, {
+        //     headers: { Authorization: `Bearer ${token}` },
+        // });
+        // setMembers(response.data);
+        // } catch (error) {
+        // console.error('Error fetching project members:', error);
+        // }
+
+        axios.get("http://localhost:8000/api/projects/2/members", {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+            },
+        })
+        .then((response) => {
+            console.log("API Response:", response.data); // Verify the response
+            setMembers(response.data);
+            console.log("State after setMembers:", response.data); // Check the updated data
+        })
+        .catch((error) => console.error("Error fetching members:", error));
+    };
+
+    const searchUsers = async (email) => {
+        try {
+        const token = localStorage.getItem('auth_token');
+        const response = await axios.get(`http://localhost:8000/api/search-users?email=${email}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        setSearchResults(response.data);
+        } catch (error) {
+        console.error('Error searching users:', error);
+        }
+    };
+
+    const addMember = async (userId) => {
+        try {
+        const token = localStorage.getItem('auth_token');
+        await axios.post(
+            `http://localhost:8000/api/projects/${id}/members`,
+            { user_id: userId },
+            {
+            headers: { Authorization: `Bearer ${token}` },
+            }
+        );
+        fetchProjectMembers(); // Refresh members list
+        setShowAddMemberModal(false); // Close the modal
+        } catch (error) {
+        console.error('Error adding member:', error);
+        }
+    };
     return (
         <div className="App">
         <div className={"h-screen flex"}>
@@ -25,7 +94,89 @@ const Home = () => {
                 <a href="#" className={"flex justify-between items-center px-3 py-2 rounded-lg"}>
                     <span className={"text-sm font-medium text-gray-700 "}>Archived</span>
                     <span className={"text-xs font-semibold text-gray-700 "}>1</span>
-                </a>  
+                </a>
+
+                <div className="flex justify-between items-center px-3 py-2 rounded-lg">
+                    <span className="text-sm font-medium text-gray-700">Member</span>
+                    <button
+                        //onClick={() => toggleShowMembers()}  // This opens the members list
+                        className="text-blue-500 text-sm"
+                    >
+                        +
+                    </button>
+                </div>
+
+
+                <button
+                    onClick={() => setShowMembers(!showMembers)}
+                    className="border p-2 rounded bg-blue-500 text-white"
+                >
+                    {showMembers ? "Hide Members" : "Show Members"}
+                </button>
+
+                {/* Show Members as Text List */}
+                {showMembers && (
+                    <div className="mt-2">
+                        {members.length > 0 ? (
+                            members.map((member) => (
+                                <div key={member.id} className="flex justify-between items-center px-3 py-2 rounded-lg">
+                                    <span className="text-sm font-medium text-gray-700">
+                                        {member.username}
+                                    </span>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="text-sm font-medium text-gray-700">No members available</div>
+                        )}
+                    </div>
+                )}
+
+                
+                {/* Add Member Modal */}
+                {showAddMemberModal && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white p-6 rounded shadow-lg">
+                        <h3 className="text-lg font-semibold mb-4">Add Member</h3>
+                        <input
+                        type="email"
+                        className="border border-gray-300 p-2 rounded w-full"
+                        placeholder="Search by email"
+                        value={searchQuery}
+                        onChange={(e) => {
+                            setSearchQuery(e.target.value);
+                            searchUsers(e.target.value);
+                        }}
+                        />
+                        <ul className="mt-2">
+                        {searchResults.map((user) => (
+                            <li
+                            key={user.id}
+                            onClick={() => addMember(user.id)}
+                            className="cursor-pointer text-blue-500 hover:underline"
+                            >
+                            {user.name} ({user.email})
+                            </li>
+                        ))}
+                        </ul>
+                        <button
+                        onClick={() => setShowAddMemberModal(false)}
+                        className="mt-4 bg-gray-500 text-white p-2 rounded"
+                        >
+                        Cancel
+                        </button>
+                    </div>
+                    </div>
+                )}
+
+                {/* Button to open Add Member Modal */}
+                <button
+                    onClick={() => setShowAddMemberModal(true)}
+                    className="mt-4 bg-green-500 text-white p-2 rounded"
+                >
+                    + Add Member
+                </button>
+                
+
                 </div>
                 <h3 className={"mt-8 text-xs font-semibold text-gray-600 uppercase tracking-wide text-left"}>Tags</h3>
                 <div className={"mt-2 -mx-3"}>

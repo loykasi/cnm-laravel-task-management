@@ -7,65 +7,75 @@ const KanbanBoard = () => {
     const [createList, toggleCreateList, enableCreateList] = useToggleState(false);
     const [newListTitle, setNewListTile] = useState("");
 
-    const [project, setProject] = useState();
+    const [project, setProject] = useState(null);
     const { id } = useParams();
 
     function syncCreateList() {
+        if (!project) {
+            console.error("Project is undefined or null");
+            return; // Exit early if project is not available
+        }
+    
         toggleCreateList();
-
-        const cloneProject = { ... project }
-
+        const cloneProject = { ...project };
+    
         const list = {
             id: "",
             projectId: project.id,
             name: newListTitle,
             order: project.lists.length,
             isCreating: false,
-            cards: []
+            cards: [],
         };
         cloneProject.lists.push(list);
-
+    
         const listInput = {
             name: newListTitle,
-            projectId: project.id
+            projectId: project.id,
         };
-
+    
         const token = localStorage.getItem("auth_token");
         if (token) {
-            axios.post(`http://localhost:8000/api/list`, listInput, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-            .then(response => {
-                console.log(response.data);
-                list.id = response.data.id;
-            })
-            .catch(error => {
-                console.error(error);
-            });
+            axios
+                .post(`http://localhost:8000/api/list`, listInput, {
+                    headers: { Authorization: `Bearer ${token}` },
+                })
+                .then((response) => {
+                    console.log(response.data);
+                    list.id = response.data.id;
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
         }
-
+    
         setProject(cloneProject);
     }
 
     async function fetchtProject() {
         const token = localStorage.getItem("auth_token");
         if (token) {
-            axios.get(`http://localhost:8000/api/project/${id}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-            .then(response => {
-                const data = response.data.data;
-                data.lists.forEach((item) => {
-                    item.isCreating = false;
+            axios
+                .get(`http://localhost:8000/api/project/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                .then((response) => {
+                    const data = response.data.data;
+                    if (data && data.lists) {
+                        data.lists.forEach((item) => {
+                            item.isCreating = false;
+                        });
+                        setProject(data);
+                        console.log(data);
+                    } else {
+                        console.error("Invalid project data", data);
+                    }
+                })
+                .catch((error) => {
+                    console.error(error);
                 });
-                setProject(data);
-                console.log(data);
-            })
-            .catch(error => {
-                console.error(error);
-            });
         }
     }
 

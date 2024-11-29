@@ -1,21 +1,22 @@
 <?php
 
-use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CardController;
 use App\Http\Controllers\RoomController;
 
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\CardListController;
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\AuthGoogleController;
 use App\Http\Controllers\VerificationController;
+use App\Http\Controllers\ProjectMemberController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ForgotPasswordController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\CardController;
-use App\Http\Controllers\CardListController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -54,6 +55,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/card/{cardId}', 'update');
         Route::delete('/card/{cardId}', 'delete');
     });
+
+
+
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -65,4 +69,7 @@ Route::middleware(['web'])->group(function () {
     Route::get('auth/callback', [AuthController::class, 'handleAuthCallback']);
 });
 
+Route::post('/projects/{projectId}/members', [ProjectMemberController::class, 'addMember']);
+Route::get('/projects/{projectId}/members', [ProjectMemberController::class, 'getMembers']);
+Route::get('/search-users', [ProjectMemberController::class, 'searchUsers']);
 
