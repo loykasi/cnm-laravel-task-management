@@ -16,6 +16,7 @@ use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\CardListController;
+use Illuminate\Broadcasting\BroadcastController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -31,6 +32,7 @@ Route::post('/send-verification-code', [VerificationController::class, 'sendVeri
 Route::post('/verifyOtp', [VerificationController::class, 'verifyOtp']);
 // Các route yêu cầu người dùng đăng nhập
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::controller(ProjectController::class)->group(function() {
@@ -50,7 +52,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::controller(CardController::class)->group(function() {
         // Route::get('/list/{listId}/card', 'index');
-        Route::post('/list/{listId}/card', 'store');
+        Route::post('/card', 'store');
         Route::put('/card/{cardId}', 'update');
         Route::delete('/card/{cardId}', 'delete');
     });

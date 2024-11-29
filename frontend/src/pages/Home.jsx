@@ -101,9 +101,6 @@ const Home = () => {
 
             {/* component */}
             <div className={"flex-1 overflow-auto"}>
-            {/* <Routes>
-                <Route path="/project" element={<KanbanBoard />} />
-            </Routes> */}
             <Outlet />
             </div>
             

@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Events\CardCreated;
+use App\Events\CardDeleted;
+use App\Events\CardUpdated;
 use App\Models\Card;
 use Illuminate\Support\Facades\DB;
 
@@ -21,55 +24,69 @@ class CardService
             'order' => $cardCount
         ]);
 
+        broadcast(new CardCreated($projectId, $card))->toOthers();
+
         return $card;
     }
 
-    public function update($cardId, $listId, $projectId, $name, $order)
+    public function update($cardId, $fromListId, $toListId, $projectId, $name, $order)
     {
         $card = Card::find($cardId);
 
         if ($order !== null) {
-            $result = $this->reorder($card, $order);
-            if (!$result) {
-                return false;
-            }
+            $this->reorder($card, $order, $fromListId, $toListId);
         }
         if ($name !== null) {
             $card->name = $name;
-            $card->listId = $listId;
             $card->save();
         }
+
+        broadcast(new CardUpdated($projectId, $fromListId, $card))->toOthers();
 
         return true;
     }
     
-    public function reorder($card, $order) {
-        try {
-            $oldOrder = $card->order;
-    
-            $card->order = $order;
-            $card->save();
-                
+    public function reorder($card, $order, $fromListId, $toListId) {
+        $oldOrder = $card->order;
+
+        $card->order = $order;
+        $card->listId = $toListId;
+        $card->save();
+
+        if ($fromListId === $toListId) {
             if ($order != $oldOrder) {
                 $cards = Card::where([
+                    ['listId', $toListId],
                     ['id', '<>', $card->id],
                 ]);
                 
                 if ($order > $oldOrder) {
-                    $this->reorderOthers($cards, $oldOrder, $order, -1);
+                    $this->reorderOthersInBetween($cards, $oldOrder, $order, -1);
                 } else {
-                    $this->reorderOthers($cards, $order, $oldOrder, 1);
+                    $this->reorderOthersInBetween($cards, $order, $oldOrder, 1);
                 }
             }
-
-            return true;
-        } catch (\Throwable $th) {
-            return false;
+        } else {
+            $this->reorderOthersFrom($card->id, $fromListId, $oldOrder, -1);
+            $this->reorderOthersFrom($card->id, $toListId, $order, 1);
         }
     }
 
-    private function reorderOthers($cards, $rangeA, $rangeB, $change) {
+    private function reorderOthersInBetween($cards, $rangeA, $rangeB, $change) {
         $cards = $cards->whereBetween('order', [$rangeA, $rangeB])->get();
+
+        foreach ($cards as $card) {
+            $card->order += $change;
+            $card->save();
+        }
+    }
+
+    private function reorderOthersFrom($cardId, $listId, $fromValue, $change) {
+        $cards = Card::where([
+            ['listId', $listId],
+            ['id', '<>', $cardId],
+            ['order', '>=', $fromValue]
+        ])->get();
 
         foreach ($cards as $card) {
             $card->order += $change;
@@ -79,6 +96,13 @@ class CardService
 
     public function delete($cardId, $projectId)
     {
-        return Card::where('id', $cardId)->delete();
+        $card = Card::where('id', $cardId)->first();
+        if ($card === null) {
+            return false;
+        }
+
+        broadcast(new CardDeleted($projectId, $card->listId, $card->id))->toOthers();
+        $card->delete();
+        return true;
     }
 }

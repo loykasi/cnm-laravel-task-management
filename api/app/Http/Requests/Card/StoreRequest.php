@@ -11,13 +11,7 @@ class StoreRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
-    }
-
-    protected function prepareForValidation() {
-        $this->merge([
-            'projectId' => $this->route('listId')
-        ]);
+        return true;
     }
 
     /**
