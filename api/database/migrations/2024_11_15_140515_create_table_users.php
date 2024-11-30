@@ -24,6 +24,11 @@ return new class extends Migration
             $table->string('status')->default('active'); // Thêm cột status
             $table->string('avatar')->nullable()->default("user.png");
             $table->string('phone')->nullable()->default(null);
+            $table->string('address')->nullable(); // Địa chỉ
+            $table->text('bio')->nullable()->default(null); // Giới thiệu
+            $table->string('job')->nullable()->default(null); // Công việc
+            $table->string('aaa')->nullable()->default(null); // Trường aaa
+            $table->string('bbb')->nullable()->default(null); // Trường bbb
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

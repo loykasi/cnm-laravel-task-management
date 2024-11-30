@@ -34,6 +34,7 @@ Route::post('/verifyOtp', [VerificationController::class, 'verifyOtp']);
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate']);
     Route::post('/logout', [AuthController::class, 'logout']);
+  
 
     Route::controller(ProjectController::class)->group(function() {
         Route::get('/project', 'index');
@@ -42,6 +43,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/project', 'store');
         Route::put('/project', 'update');
     });
+
+    Route::post('/profile', [UserController::class, 'getUserProfile']);
 
     Route::controller(CardListController::class)->group(function() {
         Route::get('/project/{projectId}/list', 'index');
@@ -66,5 +69,3 @@ Route::middleware(['web'])->group(function () {
     Route::get('auth', [AuthController::class, 'redirectToAuth']);
     Route::get('auth/callback', [AuthController::class, 'handleAuthCallback']);
 });
-
-
