@@ -34,31 +34,12 @@ Route::post('/verifyOtp', [VerificationController::class, 'verifyOtp']);
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate']);
     Route::post('/logout', [AuthController::class, 'logout']);
-  
-
-    Route::controller(ProjectController::class)->group(function() {
-        Route::get('/project', 'index');
-        Route::get('/user/{userId}/project', 'getUserProject');
-        Route::get('/project/{projectId}', 'getProjectDetail');
-        Route::post('/project', 'store');
-        Route::put('/project', 'update');
-    });
 
     Route::post('/profile', [UserController::class, 'getUserProfile']);
 
-    Route::controller(CardListController::class)->group(function() {
-        Route::get('/project/{projectId}/list', 'index');
-        Route::post('/list', 'store');
-        Route::put('/list/{listId}', 'update');
-        Route::delete('/list/{listId}', 'delete');
-    });
 
-    Route::controller(CardController::class)->group(function() {
-        // Route::get('/list/{listId}/card', 'index');
-        Route::post('/card', 'store');
-        Route::put('/card/{cardId}', 'update');
-        Route::delete('/card/{cardId}', 'delete');
-    });
+
+
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -68,4 +49,27 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::middleware(['web'])->group(function () {
     Route::get('auth', [AuthController::class, 'redirectToAuth']);
     Route::get('auth/callback', [AuthController::class, 'handleAuthCallback']);
+});
+
+Route::controller(ProjectController::class)->group(function() {
+    Route::get('/project', 'index');
+    Route::get('/user/{userId}/project', 'getUserProject');
+    Route::get('/project/{projectId}', 'getProjectDetail');
+    Route::post('/project', 'store');
+    Route::put('/project', 'update');
+    Route::delete('/project/{id}', 'delete');
+});
+
+Route::controller(CardListController::class)->group(function() {
+    Route::get('/project/{projectId}/list', 'index');
+    Route::post('/list', 'store');
+    Route::put('/list/{listId}', 'update');
+    Route::delete('/list/{listId}', 'delete');
+});
+
+Route::controller(CardController::class)->group(function() {
+    Route::get('/list/{listId}/card', 'index');
+    Route::post('/card', 'store');
+    Route::put('/card/{cardId}', 'update');
+    Route::delete('/card/{cardId}', 'delete');
 });

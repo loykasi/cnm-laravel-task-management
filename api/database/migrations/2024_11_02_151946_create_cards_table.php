@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('order');
+            $table->text('description')->nullable();
+            $table->text('comment')->nullable();
             $table->unsignedBigInteger('listId')->nullable();
             $table->foreign('listId')->references('id')->on('card_lists')->onDelete('cascade');
             $table->timestamps();

@@ -14,25 +14,27 @@ class ProjectService
     }
 
     public function getUserProject($userId) {
-        $projects = Project::where('userId', $userId)->get();
+        $projects = Project::where('user_id', $userId)->get();
 
         return $projects;
     }
 
-    public function store($name, $userId) {
+    public function store($name, $desc, $userId) {
         $project = Project::create([
             'name' => $name,
-            'slug' => Project::createSlug($name),
-            'userId' => $userId
+            // 'slug' => Project::createSlug($name),
+            'description' => $desc,
+            'user_id' => $userId
         ]);
 
         return $project;
     }
 
-    public function update($id, $name) {
+    public function update($id, $name, $desc) {
         $result = Project::where('id', $id)
                             ->update([
                                 'name' => $name,
+                                'description' => $desc,
                             ]);
 
         return $result;

@@ -24,6 +24,8 @@ class UpdateRequest extends FormRequest
         return [
             'cardId' => ['required'],
             'name' => ['required'],
+            'description' => 'nullable|string',
+            'comment' => 'nullable|string',
             'listId' => ['required']
         ];
     }

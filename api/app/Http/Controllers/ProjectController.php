@@ -31,12 +31,12 @@ class ProjectController extends Controller
         $projects = $this->projectService->getUserProject($userId);
 
         if ($projects) {
-            return response([
+            return response()->json([
                 'data' => $projects
             ], 200);
         }
 
-        return response([
+        return response()->json([
             'message' => 'not found'
         ], 404);
     }
@@ -44,11 +44,15 @@ class ProjectController extends Controller
     public function store(StoreRequest $request) {
         $fields = $request->validated();
 
-        $project = $this->projectService->store($fields['name'], $fields['userId']);
+        $project = $this->projectService->store($fields['name'], $fields['description'], $fields['user_id']);
 
-        $count = Project::count();
+        // $count = Project::count();
 
-        return response([
+        if (!$project) {
+            return response()->json('Error', 404);
+        }
+
+        return response()->json([
             'project' => $project,
             'message' => 'project created'
             ], 200);
@@ -57,46 +61,47 @@ class ProjectController extends Controller
     public function update(UpdateRequest $request) {
         $fields = $request->validated();
 
-        $result = $this->projectService->update($fields['id'], $fields['name']);
+        $result = $this->projectService->update($fields['id'], $fields['name'], $fields['description']);
 
         if ($result) {
-            return response([
+            return response()->json([
                 'message' => 'project updated'
                 ], 200);
         }
 
-        return response([
+        return response()->json([
             'message' => 'not found'
         ], 404);
     }
 
-    public function delete(DeleteRequest $request) {
-        $fields = $request->validated();
+    public function delete($id) {
 
-        $result = $this->projectService->delete($fields['id']);
+        $result = $this->projectService->delete($id);
 
         if ($result) {
-            return response([
-                'message' => 'project updated'
-                ], 200);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Project deleted successfully',
+            ], 200);
         }
 
-        return response([
-            'message' => 'not found'
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Project not found',
         ], 404);
     }
 
     public function getProjectDetail($projectId) {
         $project = $this->projectService->getProjectDetail($projectId);
-        
+
         return response([
             'data' => $project
         ], 200);
     }
 
-    public function countProject() {
-        $count = Project::count();
-        return response(['count' => $count]);
-    }
+    // public function countProject() {
+    //     $count = Project::count();
+    //     return response(['count' => $count]);
+    // }
 
 }
