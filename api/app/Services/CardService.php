@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Services;
+
 use App\Events\CardCreated;
 use App\Events\CardDeleted;
 use App\Events\CardUpdated;
@@ -22,7 +23,9 @@ class CardService
             'listId' => $listId,
             'order' => $cardCount
         ]);
+
         broadcast(new CardCreated($projectId, $card))->toOthers();
+
         return $card;
     }
 
@@ -37,7 +40,9 @@ class CardService
             $card->name = $name;
             $card->save();
         }
+
         broadcast(new CardUpdated($projectId, $fromListId, $card))->toOthers();
+
         return true;
     }
     
@@ -54,7 +59,7 @@ class CardService
                     ['listId', $toListId],
                     ['id', '<>', $card->id],
                 ]);
-
+                
                 if ($order > $oldOrder) {
                     $this->reorderOthersInBetween($cards, $oldOrder, $order, -1);
                 } else {
@@ -71,10 +76,10 @@ class CardService
         $cards = $cards->whereBetween('order', [$rangeA, $rangeB])->get();
 
         foreach ($cards as $card) {
+            $card->order += $change;
+            $card->save();
         }
     }
-
-
 
     private function reorderOthersFrom($cardId, $listId, $fromValue, $change) {
         $cards = Card::where([

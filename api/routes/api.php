@@ -48,14 +48,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
     Route::controller(CardListController::class)->group(function() {
         Route::get('/project/{projectId}/list', 'index');
-        Route::post('/card', 'store');        
+        Route::post('/list', 'store');
         Route::put('/list/{listId}', 'update');
         Route::delete('/list/{listId}', 'delete');
     });
 
     Route::controller(CardController::class)->group(function() {
         // Route::get('/list/{listId}/card', 'index');
-        Route::post('/list/{listId}/card', 'store');
+        Route::post('/card', 'store');        
         Route::put('/card/{cardId}', 'update');
         Route::delete('/card/{cardId}', 'delete');
     });

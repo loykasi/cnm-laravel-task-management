@@ -34,12 +34,12 @@ class CardController extends Controller
         
         if ($result)
         {
-            return response([
-                'message' => 'card created'
-            ], 200);
+            return response($result, 200);
         }
 
-        return response($result, 200);
+        return response([
+            'message' => 'failed'
+        ], 400);
     }
 
     public function update($cardId, Request $request)

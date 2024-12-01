@@ -10,7 +10,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class CardDeleted
+class CardDeleted implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -30,7 +30,7 @@ class CardDeleted
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel("project.{$this->projectId}"),
+            new PrivateChannel("project.{$this->projectId}")
         ];
     }
 }
