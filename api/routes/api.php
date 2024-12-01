@@ -43,8 +43,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/project', 'store');
         Route::put('/project', 'update');
     });
-
-    Route::post('/profile', [UserController::class, 'getUserProfile']);
+    Route::controller(UserController::class)->group(function () {
+        Route::post('/editprofile',  'editprofile');
+        Route::post('/profile',  'getUserProfile');
+    });
 
     Route::controller(CardListController::class)->group(function() {
         Route::get('/project/{projectId}/list', 'index');
