@@ -19,6 +19,7 @@ import UsersList from "./Component/Admin/Users/UsersList";
 import RoomsList from "./Component/Admin/Rooms/RoomsList";
 
 import KanbanBoard from "./pages/KanbanBoard";
+import ProfilePage from "./pages/ProfilePage";
 import Home from "./pages/Home";
 
 const App = () => {
@@ -35,6 +36,7 @@ const App = () => {
 
         <Route path="/home" element={<Home />} >
           <Route path="project/:id" element={<KanbanBoard />} />
+          <Route path="profile" element={<ProfilePage />} />
         </Route>
 
         <Route path="/admin/login" element={<Login />} />

@@ -54,4 +54,20 @@ class ProjectMemberController extends Controller
         $users = User::where('email', 'like', '%' . $email . '%')->get();
         return response()->json($users);
     }
+
+    public function removeMember($projectId, $userId)
+    {
+        // Find the project
+        $project = Project::findOrFail($projectId);
+
+        // Check if the user is a member
+        if (!$project->members->contains($userId)) {
+            return response()->json(['message' => 'User is not a member of this project'], 404);
+        }
+
+        // Detach the user from the project
+        $project->members()->detach($userId);
+
+        return response()->json(['message' => 'Member removed successfully']);
+    }
 }

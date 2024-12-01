@@ -30,7 +30,7 @@ class CardController extends Controller
     public function store(StoreRequest $request)
     {
         $fields = $request->validated();
-        $result = $this->cardService->store($fields['name'], $fields['listId'], $request['projectId']);
+        $result = $this->cardService->store($fields['name'], $fields['listId'], $fields['projectId']);
         
         if ($result)
         {
@@ -39,19 +39,18 @@ class CardController extends Controller
             ], 200);
         }
 
-        return response([
-            'message' => 'failed'
-        ], 400);
+        return response($result, 200);
     }
 
     public function update($cardId, Request $request)
     {
         $result = $this->cardService->update(
             $cardId,
+            $request['fromListId'],
+            $request['toListId'],
+            $request['projectId'],
             $request['name'],
-            $request['listId'],
             $request['order'],
-            $request['projectId']
         );
 
         if ($result)

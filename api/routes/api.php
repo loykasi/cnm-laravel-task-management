@@ -17,7 +17,7 @@ use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\ProjectMemberController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\ForgotPasswordController;
-
+use Illuminate\Broadcasting\BroadcastController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -32,6 +32,7 @@ Route::post('/send-verification-code', [VerificationController::class, 'sendVeri
 Route::post('/verifyOtp', [VerificationController::class, 'verifyOtp']);
 // Các route yêu cầu người dùng đăng nhập
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::controller(ProjectController::class)->group(function() {
@@ -41,10 +42,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/project', 'store');
         Route::put('/project', 'update');
     });
-
+    Route::controller(UserController::class)->group(function () {
+        Route::post('/editprofile',  'editprofile');
+        Route::post('/profile',  'getUserProfile');
+    });
     Route::controller(CardListController::class)->group(function() {
         Route::get('/project/{projectId}/list', 'index');
-        Route::post('/list', 'store');
+        Route::post('/card', 'store');        
         Route::put('/list/{listId}', 'update');
         Route::delete('/list/{listId}', 'delete');
     });
@@ -71,5 +75,6 @@ Route::middleware(['web'])->group(function () {
 
 Route::post('/projects/{projectId}/members', [ProjectMemberController::class, 'addMember']);
 Route::get('/projects/{projectId}/members', [ProjectMemberController::class, 'getMembers']);
+Route::delete('projects/{projectId}/members/{userId}', [ProjectMemberController::class, 'removeMember']);
 Route::get('/search-users', [ProjectMemberController::class, 'searchUsers']);
 

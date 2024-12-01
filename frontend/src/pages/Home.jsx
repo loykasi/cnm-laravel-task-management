@@ -20,27 +20,27 @@ const Home = () => {
     }, []);
 
     const fetchProjectMembers = async () => {
-        // try {
-        // const token = localStorage.getItem('auth_token');
-        // const response = await axios.get(`http://localhost:8000/api/projects/${id}/members`, {
-        //     headers: { Authorization: `Bearer ${token}` },
-        // });
-        // setMembers(response.data);
-        // } catch (error) {
-        // console.error('Error fetching project members:', error);
-        // }
-
-        axios.get("http://localhost:8000/api/projects/2/members", {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
-            },
-        })
-        .then((response) => {
-            console.log("API Response:", response.data); // Verify the response
+        try {
+            const token = localStorage.getItem('auth_token');
+            const response = await axios.get(`http://localhost:8000/api/projects/${id}/members`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
             setMembers(response.data);
-            console.log("State after setMembers:", response.data); // Check the updated data
-        })
-        .catch((error) => console.error("Error fetching members:", error));
+        } catch (error) {
+            console.error('Error fetching project members:', error);
+        }
+
+    //     await axios.get("http://localhost:8000/api/projects/${id}/members", {
+    //         headers: {
+    //             Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+    //         },
+    //     })
+    //     .then((response) => {
+    //         console.log("API Response:", response.data); // Verify the response
+    //         setMembers(response.data);
+    //         console.log("State after setMembers:", response.data); // Check the updated data
+    //     })
+    //     .catch((error) => console.error("Error fetching members:", error));
     };
 
     const searchUsers = async (email) => {
@@ -71,6 +71,18 @@ const Home = () => {
         console.error('Error adding member:', error);
         }
     };
+
+
+    const deleteMember = async (userId) => {
+        try {
+            await axios.delete(`http://localhost:8000/api/projects/${id}/members/${userId}`);
+            // Update members list after successful deletion
+            setMembers(members.filter((member) => member.id !== userId));
+        } catch (error) {
+            console.error("Error deleting member:", error);
+        }
+    };
+
     return (
         <div className="App">
         <div className={"h-screen flex"}>
@@ -123,6 +135,12 @@ const Home = () => {
                                     <span className="text-sm font-medium text-gray-700">
                                         {member.username}
                                     </span>
+                                    <button
+                                        onClick={() => deleteMember(member.id)}
+                                        className="text-sm text-red-500 font-medium border px-2 py-1 rounded"
+                                    >
+                                        Delete
+                                    </button>
                                 </div>
                             ))
                         ) : (
