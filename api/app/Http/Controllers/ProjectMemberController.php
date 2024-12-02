@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Auth;
 class ProjectMemberController extends Controller
 {
    // Add a member to a project
@@ -57,15 +57,23 @@ class ProjectMemberController extends Controller
 
     public function removeMember($projectId, $userId)
     {
-        // Find the project
+        // Lấy thông tin user đang đăng nhập
+        $currentUserId = Auth::id();
+
+        // Tìm project
         $project = Project::findOrFail($projectId);
 
-        // Check if the user is a member
+        // Kiểm tra quyền: user hiện tại phải là chủ sở hữu project
+        if ($project->user_id !== $currentUserId) {
+            return response()->json(['message' => 'Unauthorized: You do not own this project'], 403);
+        }
+
+        // Kiểm tra xem user có phải là thành viên không
         if (!$project->members->contains($userId)) {
             return response()->json(['message' => 'User is not a member of this project'], 404);
         }
 
-        // Detach the user from the project
+        // Gỡ user khỏi project
         $project->members()->detach($userId);
 
         return response()->json(['message' => 'Member removed successfully']);

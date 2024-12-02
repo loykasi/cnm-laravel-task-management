@@ -42,6 +42,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/project/{projectId}', 'getProjectDetail');
         Route::post('/project', 'store');
         Route::put('/project', 'update');
+        Route::delete('/project/{id}', 'delete');
     });
     Route::controller(UserController::class)->group(function () {
         Route::post('/editprofile',  'editprofile');
@@ -62,6 +63,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('/card/{cardId}', 'delete');
     });
 
+    Route::delete('projects/{projectId}/members/{userId}', [ProjectMemberController::class, 'removeMember']);
 
 
 });
@@ -77,6 +79,5 @@ Route::middleware(['web'])->group(function () {
 
 Route::post('/projects/{projectId}/members', [ProjectMemberController::class, 'addMember']);
 Route::get('/projects/{projectId}/members', [ProjectMemberController::class, 'getMembers']);
-Route::delete('projects/{projectId}/members/{userId}', [ProjectMemberController::class, 'removeMember']);
 Route::get('/search-users', [ProjectMemberController::class, 'searchUsers']);
 

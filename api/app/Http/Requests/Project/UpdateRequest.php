@@ -23,6 +23,7 @@ class UpdateRequest extends FormRequest
     {
         return [
             'id' => 'required',
+            'description' => 'nullable|string',
             'name'=>'required',
         ];
     }

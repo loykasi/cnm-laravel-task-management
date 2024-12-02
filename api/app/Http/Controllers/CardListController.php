@@ -20,7 +20,12 @@ class CardListController extends Controller
     public function index($projectId)
     {
         $result = $this->cardListService->index($projectId);
-        return response([
+        if (!$result) {
+            return response()->json([
+                'message' => 'error',
+            ], 404);
+        }
+        return response()->json([
             'message' => 'Ok',
             'data' => $result
         ], 200);
@@ -33,10 +38,10 @@ class CardListController extends Controller
         
         if ($result)
         {
-            return response($result, 200);
+            return response()->json($result, 200);
         }
 
-        return response([
+        return response()->json([
             'message' => 'failed'
         ], 400);
     }

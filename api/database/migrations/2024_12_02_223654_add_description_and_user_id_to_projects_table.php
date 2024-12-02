@@ -12,10 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('projects', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id')->after('slug');
-
-            // Add a foreign key constraint to reference the users table
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->text('description')->nullable();
         });
     }
 
@@ -25,8 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('projects', function (Blueprint $table) {
-            $table->dropForeign(['user_id']);
-            $table->dropColumn('user_id');
+            $table->dropColumn(['description']);
         });
     }
 };
