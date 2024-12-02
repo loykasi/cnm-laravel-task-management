@@ -46,6 +46,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::controller(UserController::class)->group(function () {
         Route::post('/editprofile',  'editprofile');
         Route::post('/profile',  'getUserProfile');
+        Route::post('/upload-avatar',  'uploadAvatar');
     });
 
     Route::controller(CardListController::class)->group(function() {

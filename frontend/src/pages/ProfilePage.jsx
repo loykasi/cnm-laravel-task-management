@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FiEdit2, FiCheck, FiTrash2, FiPlus, FiX } from "react-icons/fi";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import useFetchProfile from "../api/getProfile.js";
-import { editprofile } from "../api/editProfile.js";
+import { editprofile, changeavatar } from "../api/editProfile.js";
 const ProfilePage = () => {
     const { profileData, error, refetch } = useFetchProfile();
     const [selectedImage, setSelectedImage] = useState(null);  // Lấy dữ liệu và lỗi từ hook
@@ -115,18 +115,17 @@ const ProfilePage = () => {
         }
     };
 
-    const handleImageChange = (e) => {
+    const handleImageChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setSelectedImage(reader.result);
-                setEditedUserInfo({
-                    ...editedUserInfo,
-                    avatar: reader.result,
-                });
-            };
-            reader.readAsDataURL(file);
+            try {
+                const response = await changeavatar(editedUserInfo.email, file);
+                setEditedUserInfo((prev) => ({ ...prev, avatar: response.data.avatar }));
+                alert("Avatar updated successfully!");
+            } catch (err) {
+                console.error("Error uploading avatar:", err);
+                alert("Failed to update avatar.");
+            }
         }
     };
     return (
@@ -142,7 +141,8 @@ const ProfilePage = () => {
                                     onClick={() => document.getElementById("fileInput").click()}
                                 >
                                     <img
-                                        src={selectedImage || editedUserInfo.avatar}
+                                        src={`http://localhost:8000/storage/${editedUserInfo.avatar}`}
+
                                         alt="Profile"
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
@@ -204,7 +204,8 @@ const ProfilePage = () => {
                     ) : profileData ? (
                         <div className="flex flex-col md:flex-row items-center">
                             <img
-                                src={`https://${profileData.avatar}`}
+                                src={`http://localhost:8000/storage/${profileData.avatar}`}
+
                                 alt="Profile"
                                 className="w-32 h-32 rounded-full object-cover"
                                 onError={(e) => {

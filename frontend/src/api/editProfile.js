@@ -15,3 +15,14 @@ export const editprofile = async (email, username, job, address, bio, avatar) =>
     const response = await api.post(`/editprofile`, { email, username, job, address, bio, avatar });
     return response.data;
 };
+export const changeavatar = async (email, avatar) => {
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('avatar', avatar);
+    const response = await api.post(`/upload-avatar`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+    return response;
+};
