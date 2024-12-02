@@ -166,24 +166,28 @@ const ProfilePage = () => {
                                     value={editedUserInfo.name}
                                     onChange={(e) => setEditedUserInfo({ ...editedUserInfo, name: e.target.value })}
                                     className="w-full px-3 py-2 border rounded-md"
+                                    placeholder="Nhập tên của bạn"
                                 />
                                 <input
                                     type="text"
                                     value={editedUserInfo.job}
                                     onChange={(e) => setEditedUserInfo({ ...editedUserInfo, job: e.target.value })}
                                     className="w-full px-3 py-2 border rounded-md"
+                                    placeholder="Công việc hiện tại"
                                 />
                                 <textarea
                                     value={editedUserInfo.address}
                                     onChange={(e) => setEditedUserInfo({ ...editedUserInfo, address: e.target.value })}
                                     className="w-full px-3 py-2 border rounded-md"
                                     rows="3"
+                                    placeholder="Địa chỉ"
                                 />
                                 <textarea
                                     value={editedUserInfo.bio}
                                     onChange={(e) => setEditedUserInfo({ ...editedUserInfo, bio: e.target.value })}
                                     className="w-full px-3 py-2 border rounded-md"
                                     rows="3"
+                                    placeholder="Giới thiệu bản thân"
                                 />
                                 <div className="flex justify-end space-x-2">
                                     <button

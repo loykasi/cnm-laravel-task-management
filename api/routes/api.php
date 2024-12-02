@@ -30,6 +30,8 @@ Route::post('/forgot-password', ForgotPasswordController::class);
 Route::post('/reset-password', ResetPasswordController::class);
 Route::post('/send-verification-code', [VerificationController::class, 'sendVerificationCode']);
 Route::post('/verifyOtp', [VerificationController::class, 'verifyOtp']);
+Route::post('/auth/google', [GoogleController::class, 'handleGoogleLogin']);
+
 // Các route yêu cầu người dùng đăng nhập
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate']);
