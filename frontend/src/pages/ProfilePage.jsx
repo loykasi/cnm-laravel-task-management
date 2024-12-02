@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FiEdit2, FiCheck, FiTrash2, FiPlus, FiX } from "react-icons/fi";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import useFetchProfile from "../api/getProfile.js";
-import { editprofile } from "../api/editProfile.js";
+import { editprofile, changeavatar } from "../api/editProfile.js";
 const ProfilePage = () => {
     const { profileData, error, refetch } = useFetchProfile();
     const [selectedImage, setSelectedImage] = useState(null);  // Lấy dữ liệu và lỗi từ hook
@@ -15,6 +15,7 @@ const ProfilePage = () => {
         avatar: "",
     });
     useEffect(() => {
+
         if (profileData) {
             setEditedUserInfo({
                 name: profileData.name,
@@ -25,12 +26,14 @@ const ProfilePage = () => {
                 avatar: profileData.avatar || "",
             });
         }
+
     }, [profileData]);
     const [tasks, setTasks] = useState([
         { id: "1", content: "Complete project documentation", completed: false },
         { id: "2", content: "Review pull requests", completed: true },
         { id: "3", content: "Update dependencies", completed: false },
     ]);
+
     const [activities] = useState([
         {
             id: 1,
@@ -45,13 +48,16 @@ const ProfilePage = () => {
             description: "Created task 'Update dependencies'",
         },
     ]);
+
     const [newTask, setNewTask] = useState("");
     const [isEditing, setIsEditing] = useState(false);
+
     const handleTaskComplete = (taskId) => {
         setTasks(tasks.map(task =>
             task.id === taskId ? { ...task, completed: !task.completed } : task
         ));
     };
+
     const handleAddTask = (e) => {
         e.preventDefault();
         if (!newTask.trim()) return;
@@ -63,9 +69,11 @@ const ProfilePage = () => {
         setTasks([...tasks, newTaskItem]);
         setNewTask("");
     };
+
     const handleDeleteTask = (taskId) => {
         setTasks(tasks.filter(task => task.id !== taskId));
     };
+
     const onDragEnd = (result) => {
         if (!result.destination) return;
         const items = Array.from(tasks);
@@ -75,6 +83,7 @@ const ProfilePage = () => {
     };
     const handleSaveProfile = async () => {
         try {
+
             const response = await editprofile(
                 editedUserInfo.email,
                 editedUserInfo.name,
@@ -84,7 +93,9 @@ const ProfilePage = () => {
                 editedUserInfo.avatar
             );
             console.log("Profile updated:", response);
+
             const updatedProfileData = await refetch();
+
 
             if (updatedProfileData) {
                 setEditedUserInfo({
@@ -96,23 +107,25 @@ const ProfilePage = () => {
                     avatar: updatedProfileData.avatar || "",
                 });
             }
+
+
             setIsEditing(false);
         } catch (error) {
             console.error("Error updating profile:", error);
         }
     };
-    const handleImageChange = (e) => {
+
+    const handleImageChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setSelectedImage(reader.result);
-                setEditedUserInfo({
-                    ...editedUserInfo,
-                    avatar: reader.result,
-                });
-            };
-            reader.readAsDataURL(file);
+            try {
+                const response = await changeavatar(editedUserInfo.email, file);
+                setEditedUserInfo((prev) => ({ ...prev, avatar: response.data.avatar }));
+                alert("Avatar updated successfully!");
+            } catch (err) {
+                console.error("Error uploading avatar:", err);
+                alert("Failed to update avatar.");
+            }
         }
     };
     return (
@@ -128,7 +141,8 @@ const ProfilePage = () => {
                                     onClick={() => document.getElementById("fileInput").click()}
                                 >
                                     <img
-                                        src={selectedImage || editedUserInfo.avatar}                                                                                        
+                                        src={`http://localhost:8000/storage/${editedUserInfo.avatar}`}
+
                                         alt="Profile"
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
@@ -144,30 +158,36 @@ const ProfilePage = () => {
                                     className="hidden"
                                 />
                             </div>
+
+
                             <div className="space-y-2">
                                 <input
                                     type="text"
                                     value={editedUserInfo.name}
                                     onChange={(e) => setEditedUserInfo({ ...editedUserInfo, name: e.target.value })}
                                     className="w-full px-3 py-2 border rounded-md"
+                                    placeholder="Nhập tên của bạn"
                                 />
                                 <input
                                     type="text"
                                     value={editedUserInfo.job}
                                     onChange={(e) => setEditedUserInfo({ ...editedUserInfo, job: e.target.value })}
                                     className="w-full px-3 py-2 border rounded-md"
+                                    placeholder="Công việc hiện tại"
                                 />
                                 <textarea
                                     value={editedUserInfo.address}
                                     onChange={(e) => setEditedUserInfo({ ...editedUserInfo, address: e.target.value })}
                                     className="w-full px-3 py-2 border rounded-md"
                                     rows="3"
+                                    placeholder="Địa chỉ"
                                 />
                                 <textarea
                                     value={editedUserInfo.bio}
                                     onChange={(e) => setEditedUserInfo({ ...editedUserInfo, bio: e.target.value })}
                                     className="w-full px-3 py-2 border rounded-md"
                                     rows="3"
+                                    placeholder="Giới thiệu bản thân"
                                 />
                                 <div className="flex justify-end space-x-2">
                                     <button
@@ -188,7 +208,8 @@ const ProfilePage = () => {
                     ) : profileData ? (
                         <div className="flex flex-col md:flex-row items-center">
                             <img
-                                src={`https://${profileData.avatar}`}
+                                src={`http://localhost:8000/storage/${profileData.avatar}`}
+
                                 alt="Profile"
                                 className="w-32 h-32 rounded-full object-cover"
                                 onError={(e) => {
@@ -223,6 +244,7 @@ const ProfilePage = () => {
                         <div>Loading...</div>
                     )}
                 </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Task Management Section */}
                     <div className="bg-white rounded-lg shadow-lg p-6">
@@ -244,6 +266,7 @@ const ProfilePage = () => {
                                 </button>
                             </div>
                         </form>
+
                         <DragDropContext onDragEnd={onDragEnd}>
                             <Droppable droppableId="tasks">
                                 {(provided) => (
@@ -296,6 +319,7 @@ const ProfilePage = () => {
                             </Droppable>
                         </DragDropContext>
                     </div>
+
                     {/* Activity Section */}
                     <div className="bg-white rounded-lg shadow-lg p-6">
                         <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Activities</h2>
@@ -318,4 +342,5 @@ const ProfilePage = () => {
         </div>
     );
 };
+
 export default ProfilePage;

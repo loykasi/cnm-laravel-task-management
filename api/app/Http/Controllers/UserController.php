@@ -34,7 +34,7 @@ class UserController extends Controller
             'email' => 'required|email|exists:users,email',
             'username' => 'nullable|string|max:255',
             'job' => 'nullable|string|max:255',
-            'adress' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
             'bio' => 'nullable|string',
             'avatar' => 'nullable|string', // Avatar dưới dạng base64
         ]);
@@ -53,8 +53,8 @@ class UserController extends Controller
             if (isset($validatedData['job'])) {
                 $user->job = $validatedData['job'];
             }
-            if (isset($validatedData['adress'])) {
-                $user->adress = $validatedData['adress'];
+            if (isset($validatedData['address'])) {
+                $user->address = $validatedData['address'];
             }
             if (isset($validatedData['bio'])) {
                 $user->bio = $validatedData['bio'];

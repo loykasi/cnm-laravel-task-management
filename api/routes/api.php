@@ -30,6 +30,7 @@ Route::post('/forgot-password', ForgotPasswordController::class);
 Route::post('/reset-password', ResetPasswordController::class);
 Route::post('/send-verification-code', [VerificationController::class, 'sendVerificationCode']);
 Route::post('/verifyOtp', [VerificationController::class, 'verifyOtp']);
+Route::post('/auth/google', [GoogleController::class, 'handleGoogleLogin']);
 // Các route yêu cầu người dùng đăng nhập
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate']);
@@ -45,6 +46,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::controller(UserController::class)->group(function () {
         Route::post('/editprofile',  'editprofile');
         Route::post('/profile',  'getUserProfile');
+        Route::post('/upload-avatar',  'uploadAvatar');
     });
     Route::controller(CardListController::class)->group(function() {
         Route::get('/project/{projectId}/list', 'index');

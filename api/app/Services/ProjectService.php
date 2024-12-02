@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\ProjectUpdated;
 use App\Models\Project;
 use Illuminate\Support\Facades\DB;
 
@@ -30,12 +31,15 @@ class ProjectService
     }
 
     public function update($id, $name) {
-        $result = Project::where('id', $id)
-                            ->update([
-                                'name' => $name,
-                            ]);
+        $project = Project::find($id);
 
-        return $result;
+        if ($project !== null) {
+            $project->name = $name;
+            $project->save();
+        }
+        
+        broadcast(new ProjectUpdated($project))->toOthers();
+        return true;
     }
 
     public function delete($id) {

@@ -56,6 +56,62 @@ const KanbanBoard = () => {
         fetchProject();
     }, [])
 
+    // project title
+    const [editingProjectTitle, setEditingProjectTitle] = useState("");
+    const [editingProject, setEditingProject] = useState("");
+    const editProjectTitleInput = useRef();
+    const projectTitleSpanRef = useRef();
+    function openEditProjectTitle() {
+        console.log('open')
+        setEditingProject(true);
+        setEditingProjectTitle(project.name);
+        setTimeout(() => editProjectTitleInput.current.focus(), 0);
+    }
+    function syncUpdateProjectTitle() {
+        setEditingProject(false);
+        updateProject((p) => {
+            p.name = editingProjectTitle;
+            return true;
+        })
+        const token = localStorage.getItem("auth_token");
+        if (token) {
+            axios.put(`http://localhost:8000/api/project`, {
+                id: project.id,
+                name: editingProjectTitle
+            }, {
+                headers: { Authorization: `Bearer ${token}`, "X-Socket-ID": window.Echo.socketId() }
+            })
+            .then(response => {
+                console.log(response.data);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        }
+    }
+    function closeEditProjectTitle(e) {
+        if (!editingProject) return;
+        if(!editProjectTitleInput.current.contains(e.target)) {
+            setEditingProject(false);
+        }
+    }
+    useEffect(() => {
+        if (editingProject) {
+            document.addEventListener('mousedown', closeEditProjectTitle)
+        } else {
+            document.removeEventListener("mousedown", () => closeEditProjectTitle);
+        }
+        return () => {
+            document.removeEventListener("mousedown", () => closeEditProjectTitle);
+        };
+    }, [editingProject])
+    useEffect(() => {
+        if (projectTitleSpanRef.current && editProjectTitleInput.current) {
+            const width = projectTitleSpanRef.current.offsetWidth;
+            editProjectTitleInput.current.style.width = `${width}px`;
+        }
+    }, [editingProjectTitle]);
+    // list
     function syncCreateList() {
         toggleCreateList();
 
@@ -494,6 +550,13 @@ const KanbanBoard = () => {
         setProject(cloneProject);
     }
 
+    function updateProjectFromChannel(projectUpdated) {
+        console.log(projectUpdated);
+        updateProject((p) => {
+            p.name = projectUpdated.project.name;
+            return true;
+        })
+    }
     function addListFromChannel(listCreated) {
         const list = {
             id: listCreated.list.id,
@@ -603,6 +666,9 @@ const KanbanBoard = () => {
         if (echoListenRef.current) return;
         echoListenRef.current = true;
         window.Echo.private(`project.${id}`)
+            .listen('ProjectUpdated', (e) => {
+                updateProjectFromChannel(e)
+            })
             .listen('CardListCreated', (e) => {
                 addListFromChannel(e)
             })
@@ -881,8 +947,28 @@ const KanbanBoard = () => {
             <header className={"px-6 border-b border-gray-200"}>
             <div className={"flex justify-between items-center py-2"}>
                 <div className={"flex"}>
-                <h2 className={"text-2xl font-semibold text-gray-900 leading-tight"}>{ project?.name }</h2>
-                <div className={"flex ml-6"}>
+                {!editingProject ?
+                <h2
+                    onClick={() => openEditProjectTitle()}
+                    className={"text-2xl font-semibold text-gray-900 leading-tight hover:cursor-pointer hover:bg-gray-200 px-2 py-1 rounded"}
+                >{ project?.name }</h2>
+                :
+                <span
+                    ref={projectTitleSpanRef}
+                    className="text-2xl font-semibold absolute invisible leading-tight whitespace-pre px-2 py-1"
+                >
+                    {editingProjectTitle || " "}
+                </span>
+                }
+                <input 
+                    ref={editProjectTitleInput}
+                    className={`block text-2xl font-semibold text-gray-900 leading-tight px-2 py-1 rounded ${editingProject ? "" : "hidden"}`}
+                    type="text"
+                    value={editingProjectTitle}
+                    onChange={(e) => setEditingProjectTitle(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') syncUpdateProjectTitle() }}
+                    style={{ width: "auto", minWidth: "50px" }}
+                />                <div className={"flex ml-6"}>
                     <span className={"-ml-2 rounded-full border-2 border-white"}>
                     <img className={"h-6 w-6 rounded-full object-cover"} src="https://i.pravatar.cc/100" alt="avatar"/>
                     </span>
