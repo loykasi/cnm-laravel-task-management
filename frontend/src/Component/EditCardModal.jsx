@@ -5,7 +5,7 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
     const [localCard, setLocalCard] = React.useState(card);
     const [newComment, setNewComment] = React.useState("");
     const [comments, setComments] = React.useState([]);
-    const [userCard, serCard] = React.useState([]);
+    const [userCard, setUserCard] = React.useState([]);
     const [newUserEmail, setNewUserEmail] = React.useState("");
     const [loading, setLoading] = React.useState(false);
     const [isLoadingComments, setIsLoadingComments] = React.useState(false);
@@ -18,6 +18,10 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
         setNewComment(e.target.value);
     };
 
+    const handUserCardChange = (e) => {
+        setUserCard(e.target.value);
+    };
+
     const handleChange = (field, value) => {
         setLocalCard({ ...localCard, [field]: value });
     };
@@ -28,17 +32,26 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
     };
 
     React.useEffect(() => {
+        const token = localStorage.getItem("auth_token");
         if (isOpen && card) {
             setLocalCard({ ...card, users: card.users || [] }); // Đảm bảo users luôn là mảng
             setIsLoadingComments(true);
             // Lấy bình luận của card từ API
-            axios.get(`http://localhost:8000/api/cards/${card.id}`)
+            axios.get(`http://localhost:8000/api/cards/${card.id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "X-Socket-ID": window.Echo.socketId()
+                },
+            })
                 .then(response => {
                     setComments(response.data.comments || []);  // Cập nhật danh sách bình luận
-                    setLocalCard({
-                        ...response.data,
-                        users: response.data.users || [], // Đảm bảo users luôn tồn tại
-                    });
+                    // setUserCard({...response.data.users, users: response.data.users});
+                    setUserCard({ users: response.data.users || [] });
+                    console.log('user card: ', userCard);
+                    // setLocalCard({
+                    //     ...response.data,
+                    //     users: response.data.users || [], // Đảm bảo users luôn tồn tại
+                    // });
                     setIsLoadingComments(false); // Kết thúc tải dữ liệu
                 })
                 .catch(error => {
@@ -67,13 +80,18 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
                 const newUser = response.data.users[0].user;  // Lấy user từ user field
                 console.log("New User:", newUser);  // Debug user object
 
-                // Cập nhật lại state của card với người dùng mới
-                setLocalCard((prev) => {
-                    const updatedUsers = [...prev.users, newUser];
-                    console.log("Updated Users:", updatedUsers);  // Debug updated users
-                    return { ...prev, users: updatedUsers }; // Thêm user vào danh sách người dùng
-                });
-                console.log(localCard);
+                // // Cập nhật lại state của card với người dùng mới
+                // setLocalCard((prev) => {
+                //     const updatedUsers = [...prev.users, newUser];
+                //     console.log("Updated Users:", updatedUsers);  // Debug updated users
+                //     return { ...prev, users: updatedUsers }; // Thêm user vào danh sách người dùng
+                // });
+                // setUserCard({...userCard, users: newUser});
+                setUserCard((prev) => ({
+                    ...prev,
+                    users: [...(prev.users || []), {user: newUser}],
+                }));
+                console.log("vừa thêm vô", userCard);
                 setNewUserEmail("");
             } else {
                 console.error("API response does not contain valid user data.");
@@ -99,9 +117,13 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
             //     ...prev,
             //     users: prev.users.filter((user) => user.id !== userId),
             // }));
-            setLocalCard((prev) => ({
+            // setUserCard((prev) => ({
+            //     ...prev,
+            //     users: prev.users.filter((userObj) => userObj.user.id !== userId), // Lọc theo user.id
+            // }));
+            setUserCard((prev) => ({
                 ...prev,
-                users: prev.users.filter((userObj) => userObj.user.id !== userId), // Lọc theo user.id
+                users: prev.users.filter((userObj) => userObj.user.id !== userId),
             }));
         } catch (error) {
             console.error("Error removing user:", error);
@@ -111,6 +133,7 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
     };
 
     const handleAddComment = () => {
+        const token = localStorage.getItem("auth_token");
         const newCommentObj = {
             id: Date.now(),  // Tạo ID tạm thời cho bình luận
             content: newComment,
@@ -128,7 +151,9 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
         
         // Gửi yêu cầu POST API để lưu bình luận (tùy thuộc vào API của bạn)
         if (localCard.id) {
-            axios.post(`http://localhost:8000/api/cards/${localCard.id}/comments`, newCommentObj)
+            axios.post(`http://localhost:8000/api/cards/${localCard.id}/comments`, newCommentObj, {
+                headers: { Authorization: `Bearer ${token}` },
+            })
             .then(response => {
                 console.log('Comment added:', response.data);
             })
@@ -187,8 +212,8 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
                             ))}
                         </ul> */}
                         <ul>
-                            {localCard?.users?.length > 0 ? (
-                                localCard.users.map((userObject, index) => (
+                            {/* {userCard?.users?.length > 0 ? (
+                                userCard.users.map((userObject, index) => (
                                     userObject?.user?.email ? (
                                     <li key={userObject.user.id} className="flex justify-between items-center">
                                         <span>{userObject.user.email}</span>
@@ -205,7 +230,35 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
                                 ))
                             ) : (
                                 <p>No users assigned to this card.</p>
+                            )} */}
+                            {userCard?.users?.length > 0 ? (
+                                userCard.users.map((userObject, index) => {
+                                    if (userObject?.user) {
+                                    // Kiểm tra nếu user tồn tại
+                                    return (
+                                        <li key={userObject.user.id} className="flex justify-between items-center">
+                                        <span>{userObject.user.email}</span>
+                                        <button
+                                            onClick={() => removeUserFromCard(userObject.user.id)}
+                                            className="text-red-600 hover:underline"
+                                        >
+                                            Remove
+                                        </button>
+                                        </li>
+                                    );
+                                    } else {
+                                    // Trường hợp user không hợp lệ
+                                    return (
+                                        <p key={index} className="text-red-500">
+                                        Invalid user data
+                                        </p>
+                                    );
+                                    }
+                                })
+                                ) : (
+                                <p>No users assigned to this card.</p>
                             )}
+
                         </ul>
                         <div className="flex mt-2">
                             <input
@@ -228,7 +281,7 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
                     {/* Hiển thị bình luận */}
                     <div className="mt-6">
                         <h3 className="text-sm font-semibold">Comments</h3>
-                        <div className="space-y-4 mt-4">
+                        <div className="h-72 space-y-4 mt-4 overflow-scroll overflow-x-hidden">
                             {comments?.map((comment) => (
                                 <div key={comment.id} className="p-2 border-b">
                                     <p className="font-medium">{comment.author}</p>

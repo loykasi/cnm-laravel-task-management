@@ -421,6 +421,8 @@ const KanbanBoard = () => {
 
             const cardIndex = list.cards.findIndex((c) => c.id === updatedCard.id);
             list.cards[cardIndex] = updatedCard;
+
+            setEditingCardTitle(updatedCard.name);
         });
 
         const token = localStorage.getItem("auth_token");
@@ -442,6 +444,8 @@ const KanbanBoard = () => {
                 console.error(error);
             });
         }
+
+        console.log(updatedCard);
     }
 
     /* End edit card modal */
@@ -920,7 +924,7 @@ const KanbanBoard = () => {
                                         >
                                             <div className={"flex justify-between items-center h-7"}>
                                                 {!card.isEditing &&
-                                                    <p className={"block text-sm font-medium leading-snug text-gray-900 text-left"} onClick={() => openModal(card.id, list.id)}>
+                                                    <p className={"block text-sm font-medium leading-snug text-gray-900 text-left cursor-pointer"} onClick={() => openModal(card.id, list.id)}>
                                                         {card.name}
                                                     </p>
                                                 }

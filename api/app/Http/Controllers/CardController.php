@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\Http\Requests\Card\StoreRequest;
-
+use App\Models\Card;
 use App\Services\CardService;
 use Illuminate\Http\Request;
 use function PHPUnit\Framework\isNull;

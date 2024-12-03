@@ -13,6 +13,8 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\CardListController;
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\AuthGoogleController;
+use App\Http\Controllers\CardUserController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\ProjectMemberController;
 use App\Http\Controllers\ResetPasswordController;

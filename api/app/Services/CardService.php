@@ -15,13 +15,11 @@ class CardService
         return Card::where('listId', $listId)->get();
     }
 
-    public function store($name, $desc, $cmt, $listId, $projectId)
+    public function store($name, $listId, $projectId)
     {
         $cardCount = Card::where('listId', $listId)->count();
         $card = Card::create([
             'name' => $name,
-            'description' => $desc,
-            'comment' => $cmt,
             'listId' => $listId,
             'order' => $cardCount
         ]);
