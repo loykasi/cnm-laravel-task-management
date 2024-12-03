@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cards', function (Blueprint $table) {
+        Schema::create('comments', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->integer('order');
-            $table->text('description')->nullable();
-            $table->unsignedBigInteger('listId')->nullable();
-            $table->foreign('listId')->references('id')->on('card_lists')->onDelete('cascade');
+            $table->unsignedBigInteger('card_id');
+            $table->string('content');
+            $table->string('author');
+            $table->timestamp('timestamp');
+            $table->foreign('card_id')->references('id')->on('cards')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cards');
+        Schema::dropIfExists('comments');
     }
 };

@@ -22,10 +22,8 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'cardId' => ['required'],
             'name' => ['required'],
             'description' => 'nullable|string',
-            'comment' => 'nullable|string',
             'listId' => ['required']
         ];
     }

@@ -53,15 +53,15 @@ class CardListService
     public function reorder($list, $order) {
         try {
             $oldOrder = $list->order;
-
+    
             $list->order = $order;
             $list->save();
-
+                
             if ($order != $oldOrder) {
                 $cardLists = CardList::where([
                     ['id', '<>', $list->id],
                 ]);
-
+                
                 if ($order > $oldOrder) {
                     $this->reorderOthers($cardLists, $oldOrder, $order, -1);
                 } else {

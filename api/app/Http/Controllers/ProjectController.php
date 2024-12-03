@@ -8,22 +8,46 @@ use App\Http\Requests\Project\StoreRequest;
 use App\Http\Requests\Project\UpdateRequest;
 use App\Services\ProjectService;
 use App\Models\Project;
-
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 class ProjectController extends Controller
 {
     public function __construct(private ProjectService $projectService) {}
 
-    public function index() {
-        $projects = $this->projectService->index();
+    public function index(Request $request)
+    {
+        // Lấy ID của người dùng hiện tại
+        $email = $request->input('email');
+        if (!$email) {
+            return response([
+                'message' => 'Email is required.'
+                ,$email
+            ], 400);
+        }
+     // Lấy ID của người dùng từ bảng users
+        $userId = User::where('email', $email)->value('id');
+        if (!$userId) {
+            return response([
+                'message' => 'User not found.'
+            ], 404);
+        }
 
-        if ($projects) {
+        $projectIds = DB::table('project_user')
+        ->where('user_id', $userId)
+        ->pluck('project_id');
+        $projects = Project::whereIn('id', $projectIds)->get();
+    
+        if ($projects->isNotEmpty()) {
             return response([
                 'data' => $projects
             ], 200);
         }
-
+    
         return response([
-            'message' => 'not found'
+            'message' => 'No projects found for the provided user.'
         ], 404);
     }
 
@@ -44,14 +68,17 @@ class ProjectController extends Controller
     public function store(StoreRequest $request) {
         $fields = $request->validated();
 
-        $project = $this->projectService->store($fields['name'], $fields['description'], $fields['user_id']);
+        $project = $this->projectService->store($fields['name'],  $fields['user_id'], $fields['description'],);
 
-        // $count = Project::count();
+        $count = Project::count();
 
         if (!$project) {
-            return response()->json('Error', 404);
+            return response()->json([
+                'error' => 'Project creation failed!',
+                'fields' => $fields,
+            ], 404);
         }
-
+        
         return response()->json([
             'project' => $project,
             'message' => 'project created'
@@ -66,7 +93,7 @@ class ProjectController extends Controller
         if ($result) {
             return response()->json([
                 'message' => 'project updated'
-                ], 200);
+            ], 200);
         }
 
         return response()->json([
@@ -93,15 +120,53 @@ class ProjectController extends Controller
 
     public function getProjectDetail($projectId) {
         $project = $this->projectService->getProjectDetail($projectId);
-
+        
         return response([
             'data' => $project
         ], 200);
     }
 
-    // public function countProject() {
-    //     $count = Project::count();
-    //     return response(['count' => $count]);
-    // }
+    public function countProject() {
+        $count = Project::count();
+        return response(['count' => $count]);
+    }
+    public function create(Request $request)
+    {
+        $email = $request->input('email');
+        if (!$email) {
+            return response([
+                'message' => 'Email is required.'
+                ,$email
+            ], 400);
+        }
+    
+        $userId = User::where('email', $email)->value('id');
+        if (!$userId) {
+            return response([
+                'message' => 'User not found.'
+            ], 404);
+        }
 
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'status' => 'required|string',
+            'dueDate' => 'required|date',
+        ]);
+
+        $project = Project::create([
+            'name' => $validated['name'],
+            'user_id'=>$userId,
+            'slug' => $validated['name'],       
+            'description' => $validated['description'],
+            'status' => $validated['status'],
+            'due_date' => $validated['dueDate'],
+        ]);
+        $project->users()->attach($userId);
+        
+        return response()->json([
+            'success' => true,
+            'data' => $project
+        ], 200);
+    }
 }

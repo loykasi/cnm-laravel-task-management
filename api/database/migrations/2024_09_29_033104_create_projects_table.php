@@ -15,8 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            // $table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
+            $table->string('status')->default('ongoing'); // Example: ongoing, completed, etc.
+            $table->integer('progress')->default(0);
+            $table->string('priority')->default('medium'); // Example: low, medium, high
+            $table->date('due_date')->nullable();
+            $table->string('owner')->nullable();
+            $table->json('tags')->nullable(); // Store tags as JSON array
             $table->timestamps();
         });
     }

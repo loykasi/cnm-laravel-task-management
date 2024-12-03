@@ -59,22 +59,15 @@ class User extends Authenticatable
         $this->notify(new ResetPasswordNotification($token));
     }
 
-//     public function rooms()
-//     {
-//         return $this->belongsToMany(Room::class, 'table_room_users', 'user_id', 'room_id');
-//     }
-//     public function role()
-//     {
-//         return $this->belongsTo(Role::class); // Assuming you have a Role model
-//     }
-//     public function messages(): HasMany
-//     {
-//         return $this->hasMany(Message::class);
-//     }
+    public function role()
+    {
+        return $this->belongsTo(Role::class); // Assuming you have a Role model
+    }
 
-//     public function seenMessages()
-//     {
-//         return $this->belongsToMany(Message::class, 'message_reads')->withTimestamps();
-//     }
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class, 'project_user');
+    }
+
 
 }

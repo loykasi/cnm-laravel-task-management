@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\ProjectUpdated;
 use App\Models\Project;
 use Illuminate\Support\Facades\DB;
 
@@ -19,25 +20,28 @@ class ProjectService
         return $projects;
     }
 
-    public function store($name, $desc, $userId) {
+    public function store($name, $userId, $desc) {
         $project = Project::create([
             'name' => $name,
-            // 'slug' => Project::createSlug($name),
+            'slug' => Project::createSlug($name),
+            'user_id' => $userId,
             'description' => $desc,
-            'user_id' => $userId
         ]);
 
         return $project;
     }
 
     public function update($id, $name, $desc) {
-        $result = Project::where('id', $id)
-                            ->update([
-                                'name' => $name,
-                                'description' => $desc,
-                            ]);
+        $project = Project::find($id);
 
-        return $result;
+        if ($project !== null) {
+            $project->name = $name;
+            $project->description = $desc;
+            $project->save();
+        }
+        
+        broadcast(new ProjectUpdated($project))->toOthers();
+        return true;
     }
 
     public function delete($id) {

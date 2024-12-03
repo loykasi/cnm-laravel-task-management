@@ -14,19 +14,17 @@ class CardListController extends Controller
     public function __construct(
         protected CardListService $cardListService
     ) {
-
+        
     }
 
     public function index($projectId)
     {
         $result = $this->cardListService->index($projectId);
-
         if (!$result) {
             return response()->json([
                 'message' => 'error',
             ], 404);
         }
-
         return response()->json([
             'message' => 'Ok',
             'data' => $result
@@ -37,7 +35,7 @@ class CardListController extends Controller
     {
         $fields = $request->validated();
         $result = $this->cardListService->store($fields['name'], $fields['projectId']);
-
+        
         if ($result)
         {
             return response()->json($result, 200);

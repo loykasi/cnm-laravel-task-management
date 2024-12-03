@@ -9,19 +9,16 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-
-class CardUpdated implements ShouldBroadcast
+class ProjectUpdated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-
     /**
      * Create a new event instance.
      */
-    public function __construct(public $projectId, public $fromListId, public $card)
+    public function __construct(public $project)
     {
         //
     }
-
     /**
      * Get the channels the event should broadcast on.
      *
@@ -30,9 +27,7 @@ class CardUpdated implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel("project.{$this->projectId}")
+            new PrivateChannel("project.{$this->project->id}")
         ];
     }
-
-
 }

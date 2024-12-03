@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 
-const useFetchProfile = () => {
-    const [profileData, setProfileData] = useState(null);
+const useFetchProject = () => {
+    const [projectData, setProjectData] = useState();
     const [error, setError] = useState("");
 
     const userapi = axios.create({
@@ -20,35 +20,19 @@ const useFetchProfile = () => {
     });
 
 
-    const fetchProfile = async () => {
+    const fetchProject = async () => {
         try {
             const email = localStorage.getItem("user_email");
 
 
-            // Kiểm tra nếu không có email trong localStorage
             if (!email) {
                 setError("Email không được tìm thấy trong localStorage.");
                 return;
             }
 
-            const response = await userapi.post("/profile", { email });
+            const response = await userapi.get(`/project?email= ${email}`);
 
-
-            const data = response.data;
-
-            console.log("Profile data:", data);
-
-
-            // Cập nhật thông tin người dùng
-            setProfileData({
-                name: data.name,
-                email: data.email,
-                phone: data.phone,
-                avatar: data.avatar,
-                address: data.address,
-                job: data.job,
-                bio: data.bio,
-            });
+            setProjectData(response.data);
 
             setError("");
 
@@ -59,12 +43,12 @@ const useFetchProfile = () => {
     };
 
     useEffect(() => {
-        fetchProfile();
+        fetchProject();
     }, []);
 
 
-    return { profileData, error, refetch: fetchProfile };
+    return { projectData, error, refetch: fetchProject };
 };
 
-export default useFetchProfile;
+export default useFetchProject;
 

@@ -31,17 +31,22 @@ class CardService
         return $card;
     }
 
-    public function update($cardId, $fromListId, $toListId, $projectId, $name, $order, $desc, $cmt)
+
+    public function update($cardId, $fromListId, $toListId, $projectId, $name, $desc, $order)
     {
         $card = Card::find($cardId);
 
         if ($order !== null) {
             $this->reorder($card, $order, $fromListId, $toListId);
         }
+
         if ($name !== null) {
             $card->name = $name;
-            if ($desc !== null) {$card->description = $desc;}
-            if ($cmt !== null) {$card->comment = $cmt;}
+
+            if ($desc !== null) {
+                $card->description = $desc;
+            }
+
             $card->save();
         }
 

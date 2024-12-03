@@ -18,8 +18,11 @@ import ForgotPassword from "./Component/Admin/ForgotPassword";
 import UsersList from "./Component/Admin/Users/UsersList";
 import RoomsList from "./Component/Admin/Rooms/RoomsList";
 
+
 import KanbanBoard from "./pages/KanbanBoard";
 import ProfilePage from "./pages/ProfilePage";
+import ProjectPage from "./pages/ProjectPage";
+
 import Home from "./pages/Home";
 
 const App = () => {
@@ -34,9 +37,13 @@ const App = () => {
         <Route path="/test" element={<Navbar />} />
         <Route path="/OTP" element={<OTPInput />} />
 
+
+
+
         <Route path="/home" element={<Home />} >
           <Route path="project/:id" element={<KanbanBoard />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="/home" element={<ProjectPage />} />
         </Route>
 
         <Route path="/admin/login" element={<Login />} />
