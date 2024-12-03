@@ -1,16 +1,87 @@
 import { BrowserRouter as Router, Route, Routes, Outlet } from "react-router-dom";
 import KanbanBoard from "./KanbanBoard";
-import React, { useState, useEffect } from "react";
+
+import { useParams } from "react-router-dom";
 import useFetchProfile from "../api/getProfile.js";
 import { Link } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
 const Home = () => {
+    const [showMembers, setShowMembers] = useState(false); // Controls showing members list
+    const [showAddMemberModal, setShowAddMemberModal] = useState(false); // Controls modal visibility
+    const [members, setMembers] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
     const { profileData, error, refetch } = useFetchProfile();
     const [avatarUrl, setAvatarUrl] = useState("");
+    const { id } = useParams();
+
+
     useEffect(() => {
         if (profileData?.avatar) {
             setAvatarUrl(`http://localhost:8000/storage/${profileData.avatar}`);
         }
     }, [profileData]);
+
+    // Fetch project members
+    useEffect(() => {
+        fetchProjectMembers();
+    }, []);
+
+    const fetchProjectMembers = async () => {
+        try {
+            const token = localStorage.getItem('auth_token');
+            const response = await axios.get(`http://localhost:8000/api/projects/${id}/members`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setMembers(response.data);
+        } catch (error) {
+            console.error('Error fetching project members:', error);
+        }
+    };
+
+    const searchUsers = async (email) => {
+        try {
+            const token = localStorage.getItem('auth_token');
+            const response = await axios.get(`http://localhost:8000/api/search-users?email=${email}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setSearchResults(response.data);
+        } catch (error) {
+            console.error('Error searching users:', error);
+        }
+    };
+
+    const addMember = async (userId) => {
+        try {
+            const token = localStorage.getItem('auth_token');
+            await axios.post(
+                `http://localhost:8000/api/projects/${id}/members`,
+                { user_id: userId },
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+            fetchProjectMembers(); // Refresh members list
+            setShowAddMemberModal(false); // Close the modal
+        } catch (error) {
+            console.error('Error adding member:', error);
+        }
+    };
+
+
+    const deleteMember = async (userId) => {
+        try {
+            await axios.delete(`http://localhost:8000/api/projects/${id}/members/${userId}`);
+            // Update members list after successful deletion
+            setMembers(members.filter((member) => member.id !== userId));
+        } catch (error) {
+            console.error("Error deleting member:", error);
+        }
+    };
+
+
     return (
         <div className="App">
             <div className={"h-screen flex"}>
@@ -26,10 +97,10 @@ const Home = () => {
                     <nav className={"mt-8"}>
                         <h3 className={"text-xs font-semibold text-gray-600 uppercase tracking-wide text-left"}>Issues</h3>
                         <div className={"mt-2 -mx-3"}>
-                            <a href="#" className={"flex justify-between items-center px-3 py-2 bg-gray-200 rounded-lg"}>
-                                <span className={"text-sm font-medium text-gray-900 "}>All</span>
+                            <Link to="/home" className={"flex justify-between items-center px-3 py-2 bg-gray-200 rounded-lg"}>
+                                <span className={"text-sm font-medium text-gray-900 "}>Project</span>
                                 <span className={"text-xs font-semibold text-gray-700 "}>36</span>
-                            </a>
+                            </Link>
                             <a href="#" className={"flex justify-between items-center px-3 py-2 rounded-lg"}>
                                 <span className={"text-sm font-medium text-gray-700 "}>Assigned to me</span>
                                 <span className={"text-xs font-semibold text-gray-700 "}>2</span>
@@ -42,6 +113,94 @@ const Home = () => {
                                 <span className={"text-sm font-medium text-gray-700 "}>Archived</span>
                                 <span className={"text-xs font-semibold text-gray-700 "}>1</span>
                             </a>
+
+                            <div className="flex justify-between items-center px-3 py-2 rounded-lg">
+                                <span className="text-sm font-medium text-gray-700">Member</span>
+                                <button
+                                    //onClick={() => toggleShowMembers()}  // This opens the members list
+                                    className="text-blue-500 text-sm"
+                                >
+                                    +
+                                </button>
+                            </div>
+
+
+                            <button
+                                onClick={() => setShowMembers(!showMembers)}
+                                className="border p-2 rounded bg-blue-500 text-white"
+                            >
+                                {showMembers ? "Hide Members" : "Show Members"}
+                            </button>
+
+                            {/* Show Members as Text List */}
+                            {showMembers && (
+                                <div className="mt-2">
+                                    {members.length > 0 ? (
+                                        members.map((member) => (
+                                            <div key={member.id} className="flex justify-between items-center px-3 py-2 rounded-lg">
+                                                <span className="text-sm font-medium text-gray-700">
+                                                    {member.username}
+                                                </span>
+                                                <button
+                                                    onClick={() => deleteMember(member.id)}
+                                                    className="text-sm text-red-500 font-medium border px-2 py-1 rounded"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="text-sm font-medium text-gray-700">No members available</div>
+                                    )}
+                                </div>
+                            )}
+
+
+                            {/* Add Member Modal */}
+                            {showAddMemberModal && (
+                                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                                    <div className="bg-white p-6 rounded shadow-lg">
+                                        <h3 className="text-lg font-semibold mb-4">Add Member</h3>
+                                        <input
+                                            type="email"
+                                            className="border border-gray-300 p-2 rounded w-full"
+                                            placeholder="Search by email"
+                                            value={searchQuery}
+                                            onChange={(e) => {
+                                                setSearchQuery(e.target.value);
+                                                searchUsers(e.target.value);
+                                            }}
+                                        />
+                                        <ul className="mt-2">
+                                            {searchResults.map((user) => (
+                                                <li
+                                                    key={user.id}
+                                                    onClick={() => addMember(user.id)}
+                                                    className="cursor-pointer text-blue-500 hover:underline"
+                                                >
+                                                    {user.name} ({user.email})
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <button
+                                            onClick={() => setShowAddMemberModal(false)}
+                                            className="mt-4 bg-gray-500 text-white p-2 rounded"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Button to open Add Member Modal */}
+                            <button
+                                onClick={() => setShowAddMemberModal(true)}
+                                className="mt-4 bg-green-500 text-white p-2 rounded"
+                            >
+                                + Add Member
+                            </button>
+
+
                         </div>
                         <h3 className={"mt-8 text-xs font-semibold text-gray-600 uppercase tracking-wide text-left"}>Tags</h3>
                         <div className={"mt-2 -mx-3"}>
@@ -114,7 +273,6 @@ const Home = () => {
 
                                         </Link>
                                     </button>
-
                                 </div>
                             </div>
                         </header>
@@ -122,8 +280,12 @@ const Home = () => {
 
                     {/* component */}
                     <div className={"flex-1 overflow-auto"}>
+                        {/* <Routes>
+                    <Route path="/project" element={<KanbanBoard />} />
+                </Routes> */}
                         <Outlet />
                     </div>
+
 
                 </div>
             </div>

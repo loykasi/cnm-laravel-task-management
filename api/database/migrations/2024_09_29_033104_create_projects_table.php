@@ -14,6 +14,13 @@ return new class extends Migration
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->text('description')->nullable();
+            $table->string('status')->default('ongoing'); // Example: ongoing, completed, etc.
+            $table->integer('progress')->default(0);
+            $table->string('priority')->default('medium'); // Example: low, medium, high
+            $table->date('due_date')->nullable();
+            $table->string('owner')->nullable();
+            $table->json('tags')->nullable(); // Store tags as JSON array
             $table->timestamps();
         });
     }

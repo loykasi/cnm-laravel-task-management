@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+
+
 class UserController extends Controller
 {
     public function getUserProfile(Request $request)
@@ -18,6 +19,8 @@ class UserController extends Controller
             return response()->json(['message' => 'Không tìm thấy người dùng.'], 404);
         }
 
+
+
         return response()->json([
             'name' => $user->username,
             'phone' => $user->phone,
@@ -28,7 +31,9 @@ class UserController extends Controller
             'job'=>$user->job,
         ]);
     }
-  
+
+
+
     public function editprofile(Request $request)
     {
         
@@ -42,9 +47,8 @@ class UserController extends Controller
             'avatar' => 'nullable|string', // Avatar dưới dạng base64
         ]);
 
+
         try {
-
-
             $user = User::where('email', $validatedData['email'])->first();
     
         
@@ -58,6 +62,8 @@ class UserController extends Controller
             if (isset($validatedData['username'])) {
                 $user->username = $validatedData['username'];
             }
+
+
 
             if (isset($validatedData['job'])) {
                 $user->job = $validatedData['job'];
@@ -92,16 +98,19 @@ class UserController extends Controller
             'email' => 'required|email',
         ]);
 
+
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
             return response()->json(['error' => 'User not found'], 404);
         }
 
+
         // Xử lý upload ảnh
         if ($request->hasFile('avatar')) {
             $avatar = $request->file('avatar');
             $avatarPath = $avatar->store('avatars', 'public'); // Lưu vào storage/app/public/avatars
+
 
             // Cập nhật avatar cho người dùng
             $user->avatar = $avatarPath;
