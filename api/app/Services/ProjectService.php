@@ -52,7 +52,7 @@ class ProjectService
     }
 
     public function getProjectDetail($projectId) {
-        $project = Project::with(['lists.cards.users'])
+        $project = Project::with(['members','lists.cards.users'])
                         ->where('id', $projectId)
                         ->first();
 

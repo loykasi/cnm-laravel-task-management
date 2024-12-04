@@ -87,13 +87,13 @@ const Home = () => {
                     </Link>
 
                     <nav className={"mt-8"}>
-                        <h3 className={"text-xs font-semibold text-gray-600 uppercase tracking-wide text-left"}>Issues</h3>
+                        <h3 className={"text-xs font-semibold text-gray-600 uppercase tracking-wide text-left"}>Workspace</h3>
                         <div className={"mt-2 -mx-3"}>
                             <Link to="/home" className={"flex justify-between items-center px-3 py-2 bg-gray-200 rounded-lg"}>
                                 <span className={"text-sm font-medium text-gray-900 "}>Project</span>
-                                <span className={"text-xs font-semibold text-gray-700 "}>36</span>
+                                {/* <span className={"text-xs font-semibold text-gray-700 "}>36</span> */}
                             </Link>
-                            <a href="#" className={"flex justify-between items-center px-3 py-2 rounded-lg"}>
+                            {/* <a href="#" className={"flex justify-between items-center px-3 py-2 rounded-lg"}>
                                 <span className={"text-sm font-medium text-gray-700 "}>Assigned to me</span>
                                 <span className={"text-xs font-semibold text-gray-700 "}>2</span>
                             </a>
@@ -104,7 +104,7 @@ const Home = () => {
                             <a href="#" className={"flex justify-between items-center px-3 py-2 rounded-lg"}>
                                 <span className={"text-sm font-medium text-gray-700 "}>Archived</span>
                                 <span className={"text-xs font-semibold text-gray-700 "}>1</span>
-                            </a>
+                            </a> */}
 
 
 
@@ -113,11 +113,11 @@ const Home = () => {
 
 
                         </div>
-                        <h3 className={"mt-8 text-xs font-semibold text-gray-600 uppercase tracking-wide text-left"}>Tags</h3>
+                        {/* <h3 className={"mt-8 text-xs font-semibold text-gray-600 uppercase tracking-wide text-left"}>Tags</h3> */}
                         <div className={"mt-2 -mx-3"}>
 
                         </div>
-                        <button className={" mt-4 -ml-1 flex items-center text-sm font-medium text-gray-600"}>
+                        {/* <button className={" mt-4 -ml-1 flex items-center text-sm font-medium text-gray-600"}>
                             <svg className={"h-5 w-5 text-gray-500"} viewBox="0 0 24 24" fill="none">
                                 <path
                                     stroke="currentColor"
@@ -127,7 +127,7 @@ const Home = () => {
                                 />
                             </svg>
                             <span className={"ml-1"}>New Project</span>
-                        </button>
+                        </button> */}
                     </nav>
                 </div>
                 <div className={"flex-1 min-w-0 bg-white flex flex-col"}>

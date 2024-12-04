@@ -1057,19 +1057,19 @@ const KanbanBoard = () => {
                                 onChange={(e) => setEditingProjectTitle(e.target.value)}
                                 onKeyDown={(e) => { if (e.key === 'Enter') syncUpdateProjectTitle() }}
                                 style={{ width: "auto", minWidth: "50px" }}
-                            />                <div className={"flex ml-6"}>
-                                <span className={"-ml-2 rounded-full border-2 border-white"}>
-                                    <img className={"h-6 w-6 rounded-full object-cover"} src="https://i.pravatar.cc/100" alt="avatar" />
-                                </span>
-                                <span className={"-ml-2 rounded-full border-2 border-white"}>
-                                    <img className={"h-6 w-6 rounded-full object-cover"} src="https://i.pravatar.cc/100" alt="avatar" />
-                                </span>
-                                <span className={"-ml-2 rounded-full border-2 border-white"}>
-                                    <img className={"h-6 w-6 rounded-full object-cover"} src="https://i.pravatar.cc/100" alt="avatar" />
-                                </span>
-                                <span className={"-ml-2 rounded-full border-2 border-white"}>
-                                    <img className={"h-6 w-6 rounded-full object-cover"} src="https://i.pravatar.cc/100" alt="avatar" />
-                                </span>
+                            />
+                            <div className={"flex ml-6"}>
+                                {project?.members.map(member => { return (
+                                    <span className={"-ml-2 rounded-full border-2 border-white"}>
+                                        <img
+                                            className={"h-6 w-6 rounded-full object-cover"}
+                                            src={`http://localhost:8000/storage/${member.avatar}`} alt="avatar"
+                                            onError={(e) => {
+                                                e.target.src = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e";
+                                            }}
+                                        />
+                                    </span>
+                                )})}
                             </div>
                         </div>
                         <div className={"flex"}>
@@ -1077,7 +1077,7 @@ const KanbanBoard = () => {
                                 onClick={() => setShowAddmember(!showAddmember)
                                 }
                             >
-                                {showAddmember ? "Hide Add" : "Add Member"}
+                                Add Member
                             </button>
                             {showAddmember && <Addmember id={project.id} onClose={() => setShowAddmember(false)} />}
                             <button className={"px-2 py-1 bg-white shadow rounded"}

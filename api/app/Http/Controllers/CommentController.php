@@ -25,7 +25,7 @@ class CommentController extends Controller
         $comment = new Comment([
             'content' => $validated['content'],
             'author' => $validated['author'],
-            // 'timestamp' => $validated['timestamp'],
+            'timestamp' => now(),
         ]);
 
         // Lưu bình luận vào thẻ
