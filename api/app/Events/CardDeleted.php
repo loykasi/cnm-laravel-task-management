@@ -33,4 +33,5 @@ class CardDeleted implements ShouldBroadcast
             new PrivateChannel("project.{$this->projectId}")
         ];
     }
+
 }

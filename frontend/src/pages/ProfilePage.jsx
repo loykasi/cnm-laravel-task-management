@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { FiEdit2, FiCheck, FiTrash2, FiPlus, FiX } from "react-icons/fi";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import useFetchProfile from "../api/getProfile.js";
-
+import { editprofile, changeavatar } from "../api/editProfile.js";
 const ProfilePage = () => {
-    const { profileData, error } = useFetchProfile();
+    const { profileData, error, refetch } = useFetchProfile();
     const [selectedImage, setSelectedImage] = useState(null);  // Lấy dữ liệu và lỗi từ hook
     const [editedUserInfo, setEditedUserInfo] = useState({
         name: "",
@@ -15,16 +15,18 @@ const ProfilePage = () => {
         avatar: "",
     });
     useEffect(() => {
+
         if (profileData) {
             setEditedUserInfo({
                 name: profileData.name,
-                role: profileData.role || "",
+                address: profileData.address || "",
                 bio: profileData.bio || "",
-                location: profileData.location || "",
+                job: profileData.job || "",
                 email: profileData.email,
                 avatar: profileData.avatar || "",
             });
         }
+
     }, [profileData]);
     const [tasks, setTasks] = useState([
         { id: "1", content: "Complete project documentation", completed: false },
@@ -79,25 +81,51 @@ const ProfilePage = () => {
         items.splice(result.destination.index, 0, reorderedItem);
         setTasks(items);
     };
-    const handleSaveProfile = () => {
-        // Gửi yêu cầu lưu thông tin đã chỉnh sửa, ví dụ qua API
-        console.log("Save Profile", editedUserInfo);
+    const handleSaveProfile = async () => {
+        try {
 
-        // Sau khi lưu thành công, tắt chế độ chỉnh sửa
-        setIsEditing(false);
+            const response = await editprofile(
+                editedUserInfo.email,
+                editedUserInfo.name,
+                editedUserInfo.job,
+                editedUserInfo.address,
+                editedUserInfo.bio,
+                editedUserInfo.avatar
+            );
+            console.log("Profile updated:", response);
+
+            const updatedProfileData = await refetch();
+
+
+            if (updatedProfileData) {
+                setEditedUserInfo({
+                    name: updatedProfileData.name,
+                    address: updatedProfileData.address || "",
+                    bio: updatedProfileData.bio || "",
+                    job: updatedProfileData.job || "",
+                    email: updatedProfileData.email,
+                    avatar: updatedProfileData.avatar || "",
+                });
+            }
+
+
+            setIsEditing(false);
+        } catch (error) {
+            console.error("Error updating profile:", error);
+        }
     };
-    const handleImageChange = (e) => {
+
+    const handleImageChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setSelectedImage(reader.result);  // Lưu ảnh đã chọn vào state
-                setEditedUserInfo({
-                    ...editedUserInfo,
-                    avatar: reader.result, // Cập nhật avatar nếu có ảnh mới
-                });
-            };
-            reader.readAsDataURL(file);  // Đọc file ảnh dưới dạng base64
+            try {
+                const response = await changeavatar(editedUserInfo.email, file);
+                setEditedUserInfo((prev) => ({ ...prev, avatar: response.data.avatar }));
+                alert("Avatar updated successfully!");
+            } catch (err) {
+                console.error("Error uploading avatar:", err);
+                alert("Failed to update avatar.");
+            }
         }
     };
     return (
@@ -113,7 +141,8 @@ const ProfilePage = () => {
                                     onClick={() => document.getElementById("fileInput").click()}
                                 >
                                     <img
-                                        src={selectedImage || `https://${editedUserInfo.avatar}`}
+                                        src={`http://localhost:8000/storage/${editedUserInfo.avatar}`}
+
                                         alt="Profile"
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
@@ -134,27 +163,31 @@ const ProfilePage = () => {
                             <div className="space-y-2">
                                 <input
                                     type="text"
-                                    value={profileData.name}
+                                    value={editedUserInfo.name}
                                     onChange={(e) => setEditedUserInfo({ ...editedUserInfo, name: e.target.value })}
                                     className="w-full px-3 py-2 border rounded-md"
+                                    placeholder="Nhập tên của bạn"
                                 />
                                 <input
                                     type="text"
-                                    value={profileData.job}
+                                    value={editedUserInfo.job}
                                     onChange={(e) => setEditedUserInfo({ ...editedUserInfo, job: e.target.value })}
                                     className="w-full px-3 py-2 border rounded-md"
+                                    placeholder="Công việc hiện tại"
                                 />
                                 <textarea
-                                    value={profileData.address}
+                                    value={editedUserInfo.address}
                                     onChange={(e) => setEditedUserInfo({ ...editedUserInfo, address: e.target.value })}
                                     className="w-full px-3 py-2 border rounded-md"
                                     rows="3"
+                                    placeholder="Địa chỉ"
                                 />
                                 <textarea
-                                    value={profileData.bio}
+                                    value={editedUserInfo.bio}
                                     onChange={(e) => setEditedUserInfo({ ...editedUserInfo, bio: e.target.value })}
                                     className="w-full px-3 py-2 border rounded-md"
                                     rows="3"
+                                    placeholder="Giới thiệu bản thân"
                                 />
                                 <div className="flex justify-end space-x-2">
                                     <button
@@ -165,7 +198,7 @@ const ProfilePage = () => {
                                     </button>
                                     <button
                                         onClick={handleSaveProfile}
-                                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                                     >
                                         <FiCheck className="w-5 h-5" />
                                     </button>
@@ -175,7 +208,8 @@ const ProfilePage = () => {
                     ) : profileData ? (
                         <div className="flex flex-col md:flex-row items-center">
                             <img
-                                src={`https://${profileData.avatar}`}
+                                src={`http://localhost:8000/storage/${profileData.avatar}`}
+
                                 alt="Profile"
                                 className="w-32 h-32 rounded-full object-cover"
                                 onError={(e) => {
@@ -309,4 +343,6 @@ const ProfilePage = () => {
     );
 };
 
+
 export default ProfilePage;
+

@@ -33,4 +33,6 @@ class CardUpdated implements ShouldBroadcast
             new PrivateChannel("project.{$this->projectId}")
         ];
     }
+
+
 }
