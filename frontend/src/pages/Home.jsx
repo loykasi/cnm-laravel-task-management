@@ -115,24 +115,7 @@ const Home = () => {
                         </div>
                         <h3 className={"mt-8 text-xs font-semibold text-gray-600 uppercase tracking-wide text-left"}>Tags</h3>
                         <div className={"mt-2 -mx-3"}>
-                            <a href="#" className={"flex justify-between items-center px-3 py-2 rounded-lg"}>
-                                <span className={"text-sm font-medium text-gray-700 "}>Bug</span>
-                            </a>
-                            <a href="#" className={"flex justify-between items-center px-3 py-2 rounded-lg"}>
-                                <span className={"text-sm font-medium text-gray-700 "}>Feature Request</span>
-                            </a>
-                            <a href="#" className={"flex justify-between items-center px-3 py-2 rounded-lg"}>
-                                <span className={"text-sm font-medium text-gray-700 "}>Marketing</span>
-                            </a>
-                            <a href="#" className={"flex justify-between items-center px-3 py-2 rounded-lg"}>
-                                <span className={"text-sm font-medium text-gray-700 "}>v2.0</span>
-                            </a>
-                            <a href="#" className={"flex justify-between items-center px-3 py-2 rounded-lg"}>
-                                <span className={"text-sm font-medium text-gray-700 "}>Enhancement</span>
-                            </a>
-                            <a href="#" className={"flex justify-between items-center px-3 py-2 rounded-lg"}>
-                                <span className={"text-sm font-medium text-gray-700 "}>Design</span>
-                            </a>
+
                         </div>
                         <button className={" mt-4 -ml-1 flex items-center text-sm font-medium text-gray-600"}>
                             <svg className={"h-5 w-5 text-gray-500"} viewBox="0 0 24 24" fill="none">
@@ -154,20 +137,7 @@ const Home = () => {
                                 {/* right */}
                                 <div className={"flex-1"}>
                                     <div className={"relative w-64"}>
-                                        <span className={"absolute pl-3 inset-y-0 left-0 flex items-center"}>
-                                            <svg className={"h-6 w-6 text-gray-600"} viewBox="0 0 24 24" fill="none">
-                                                <path
-                                                    stroke="currentColor"
-                                                    strokeWidth="2"
-                                                    strokeLinecap="round"
-                                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                                                />
-                                            </svg>
-                                        </span>
-                                        <input
-                                            className={"block w-full rounded-lg border border-gray-400 pl-10 pr-4 py-2 text-gray-900 text-sm placeholder-gray-600"}
-                                            placeholder="Search"
-                                        />
+
                                     </div>
                                 </div>
                                 {/* right end */}
