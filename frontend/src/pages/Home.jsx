@@ -71,15 +71,7 @@ const Home = () => {
     };
 
 
-    const deleteMember = async (userId) => {
-        try {
-            await axios.delete(`http://localhost:8000/api/projects/${id}/members/${userId}`);
-            // Update members list after successful deletion
-            setMembers(members.filter((member) => member.id !== userId));
-        } catch (error) {
-            console.error("Error deleting member:", error);
-        }
-    };
+
 
 
     return (
@@ -114,91 +106,10 @@ const Home = () => {
                                 <span className={"text-xs font-semibold text-gray-700 "}>1</span>
                             </a>
 
-                            <div className="flex justify-between items-center px-3 py-2 rounded-lg">
-                                <span className="text-sm font-medium text-gray-700">Member</span>
-                                <button
-                                    //onClick={() => toggleShowMembers()}  // This opens the members list
-                                    className="text-blue-500 text-sm"
-                                >
-                                    +
-                                </button>
-                            </div>
 
 
-                            <button
-                                onClick={() => setShowMembers(!showMembers)}
-                                className="border p-2 rounded bg-blue-500 text-white"
-                            >
-                                {showMembers ? "Hide Members" : "Show Members"}
-                            </button>
-
-                            {/* Show Members as Text List */}
-                            {showMembers && (
-                                <div className="mt-2">
-                                    {members.length > 0 ? (
-                                        members.map((member) => (
-                                            <div key={member.id} className="flex justify-between items-center px-3 py-2 rounded-lg">
-                                                <span className="text-sm font-medium text-gray-700">
-                                                    {member.username}
-                                                </span>
-                                                <button
-                                                    onClick={() => deleteMember(member.id)}
-                                                    className="text-sm text-red-500 font-medium border px-2 py-1 rounded"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="text-sm font-medium text-gray-700">No members available</div>
-                                    )}
-                                </div>
-                            )}
 
 
-                            {/* Add Member Modal */}
-                            {showAddMemberModal && (
-                                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                                    <div className="bg-white p-6 rounded shadow-lg">
-                                        <h3 className="text-lg font-semibold mb-4">Add Member</h3>
-                                        <input
-                                            type="email"
-                                            className="border border-gray-300 p-2 rounded w-full"
-                                            placeholder="Search by email"
-                                            value={searchQuery}
-                                            onChange={(e) => {
-                                                setSearchQuery(e.target.value);
-                                                searchUsers(e.target.value);
-                                            }}
-                                        />
-                                        <ul className="mt-2">
-                                            {searchResults.map((user) => (
-                                                <li
-                                                    key={user.id}
-                                                    onClick={() => addMember(user.id)}
-                                                    className="cursor-pointer text-blue-500 hover:underline"
-                                                >
-                                                    {user.name} ({user.email})
-                                                </li>
-                                            ))}
-                                        </ul>
-                                        <button
-                                            onClick={() => setShowAddMemberModal(false)}
-                                            className="mt-4 bg-gray-500 text-white p-2 rounded"
-                                        >
-                                            Cancel
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Button to open Add Member Modal */}
-                            <button
-                                onClick={() => setShowAddMemberModal(true)}
-                                className="mt-4 bg-green-500 text-white p-2 rounded"
-                            >
-                                + Add Member
-                            </button>
 
 
                         </div>

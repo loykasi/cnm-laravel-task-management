@@ -1,7 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useToggleState } from "../hooks/useToggleState"
+import UserGroupDisplay from "../Component/UserGroupDisplay.jsx"
+import Addmember from "../Component/Addmember.jsx"
 import axios from "axios";
+import EditCardModal from "../Component/EditCardModal";
 
 const KanbanBoard = () => {
     const [createList, toggleCreateList, enableCreateList] = useToggleState(false);
@@ -11,6 +14,10 @@ const KanbanBoard = () => {
 
     const [project, setProject] = useState(null);
     const projectRef = useRef(null);
+    const [showUserGroupDisplay, setShowUserGroupDisplay] = useState(false);
+    const [showAddmember, setShowAddmember] = useState(false);
+
+
 
     const [editingListTitle, setEditingListTitle] = useState("");
     const [editingCardTitle, setEditingCardTitle] = useState("");
@@ -276,9 +283,11 @@ const KanbanBoard = () => {
         setProject(cloneProject);
     }
 
+
     function syncCreateCard() {
-        if (onActionListId == -1) return;
-        if (newCardTitle == "") return;
+        if (onActionListId === -1) return;
+        if (newCardTitle === "") return;
+
 
         const cloneProject = { ...project }
 
@@ -994,18 +1003,20 @@ const KanbanBoard = () => {
                             </div>
                         </div>
                         <div className={"flex"}>
-                            <span className={"inline-flex p-1 border bg-gray-200 rounded"}>
-                                <button className={"px-2 py-1 rounded"}>
-                                    <svg className={" h-6 w-6 text-gray-600 "} height="512" viewBox="0 -53 384 384" width="512" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke="currentColor" d="M368 154.668H16c-8.832 0-16-7.168-16-16s7.168-16 16-16h352c8.832 0 16 7.168 16 16s-7.168 16-16 16zm0 0M368 32H16C7.168 32 0 24.832 0 16S7.168 0 16 0h352c8.832 0 16 7.168 16 16s-7.168 16-16 16zm0 0M368 277.332H16c-8.832 0-16-7.168-16-16s7.168-16 16-16h352c8.832 0 16 7.168 16 16s-7.168 16-16 16zm0 0" />
-                                    </svg>
-                                </button>
-                                <button className={"px-2 py-1 bg-white shadow rounded"}>
-                                    <svg className={" h-6 w-6 text-gray-600 "} height="512" viewBox="0 -53 384 384" width="512" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke="currentColor" d="M368 154.668H16c-8.832 0-16-7.168-16-16s7.168-16 16-16h352c8.832 0 16 7.168 16 16s-7.168 16-16 16zm0 0M368 32H16C7.168 32 0 24.832 0 16S7.168 0 16 0h352c8.832 0 16 7.168 16 16s-7.168 16-16 16zm0 0M368 277.332H16c-8.832 0-16-7.168-16-16s7.168-16 16-16h352c8.832 0 16 7.168 16 16s-7.168 16-16 16zm0 0" />
-                                    </svg>
-                                </button>
-                            </span>
+                            <button className={"px-2 py-1 bg-white shadow rounded mr-2"}
+                                onClick={() => setShowAddmember(!showAddmember)
+                                }
+                            >
+                                {showAddmember ? "Hide Add" : "Add Member"}
+                            </button>
+                            {showAddmember && <Addmember id={project.id} onClose={() => setShowAddmember(false)} />}
+                            <button className={"px-2 py-1 bg-white shadow rounded"}
+                                onClick={() => setShowUserGroupDisplay(!showUserGroupDisplay)
+                                }
+                            >
+                                {showUserGroupDisplay ? "Hide Members" : "Show Members"}
+                            </button>
+                            {showUserGroupDisplay && <UserGroupDisplay id={project.id} onClose={() => setShowUserGroupDisplay(false)} />}
                             <button
                                 onClick={() => { enableCreateList() }}
                                 className={"ml-5 flex items-center pl-2 pr-4 py-1 text-sm font-medium text-white bg-gray-800 rounded hover:bg-gray-700"}
@@ -1112,6 +1123,7 @@ const KanbanBoard = () => {
                         </div>
                     }
                 </main>
+
             </div>
         </>
     );

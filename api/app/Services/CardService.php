@@ -15,13 +15,13 @@ class CardService
         return Card::where('listId', $listId)->get();
     }
 
-    public function store($name, $desc, $cmt, $listId, $projectId)
+    public function store($name, $listId, $projectId)
     {
         $cardCount = Card::where('listId', $listId)->count();
         $card = Card::create([
             'name' => $name,
-            'description' => $desc,
-            'comment' => $cmt,
+            // 'description' => $desc,
+            // 'comment' => $cmt,
             'listId' => $listId,
             'order' => $cardCount
         ]);
@@ -32,18 +32,25 @@ class CardService
     }
 
 
-    public function update($cardId, $fromListId, $toListId, $projectId, $name, $order, $desc, $cmt)
+
+
+    public function update($cardId, $fromListId, $toListId, $projectId, $name, $desc, $order)
+
     {
         $card = Card::find($cardId);
 
         if ($order !== null) {
             $this->reorder($card, $order, $fromListId, $toListId);
         }
+
         if ($name !== null) {
             $card->name = $name;
 
-            if ($desc !== null) {$card->description = $desc;}
-            if ($cmt !== null) {$card->comment = $cmt;}
+
+            if ($desc !== null) {
+                $card->description = $desc;
+            }
+
 
             $card->save();
         }
@@ -52,7 +59,7 @@ class CardService
 
         return true;
     }
-    
+
     public function reorder($card, $order, $fromListId, $toListId) {
         $oldOrder = $card->order;
 
@@ -66,7 +73,7 @@ class CardService
                     ['listId', $toListId],
                     ['id', '<>', $card->id],
                 ]);
-                
+
                 if ($order > $oldOrder) {
                     $this->reorderOthersInBetween($cards, $oldOrder, $order, -1);
                 } else {

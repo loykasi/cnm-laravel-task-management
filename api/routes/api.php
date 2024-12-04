@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\RoomController;
-
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\MessageController;
@@ -13,6 +12,9 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\CardListController;
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\AuthGoogleController;
+use App\Http\Controllers\CardUserController;
+use App\Http\Controllers\CommentController;
+
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\ProjectMemberController;
 use App\Http\Controllers\ResetPasswordController;
@@ -40,7 +42,7 @@ Route::post('/auth/google', [GoogleController::class, 'handleGoogleLogin']);
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate']);
     Route::post('/logout', [AuthController::class, 'logout']);
-  
+
 
     Route::controller(ProjectController::class)->group(function() {
         Route::get('/project', 'index');
@@ -50,7 +52,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/project', 'update');
         Route::delete('/project/{id}', 'delete');
         Route::post('/createproject', 'create');
-       
+
+
+
     });
     Route::controller(UserController::class)->group(function () {
         Route::post('/editprofile',  'editprofile');
@@ -75,13 +79,21 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::controller(CardController::class)->group(function() {
         // Route::get('/list/{listId}/card', 'index');
 
-        Route::post('/card', 'store');        
+
+        Route::post('/card', 'store');
+
 
         Route::put('/card/{cardId}', 'update');
         Route::delete('/card/{cardId}', 'delete');
     });
 
     Route::delete('projects/{projectId}/members/{userId}', [ProjectMemberController::class, 'removeMember']);
+
+
+    Route::post('/cards/{cardId}/comments', [CommentController::class, 'store']);
+    Route::post('/cards/{cardId}/users', [CardUserController::class, 'store']);
+    Route::delete('/cards/{cardId}/users/{userId}', [CardUserController::class, 'delete']);
+    Route::get('/cards/{id}', [CardController::class, 'show']);
 
 
 });
@@ -98,4 +110,5 @@ Route::middleware(['web'])->group(function () {
 
 Route::post('/projects/{projectId}/members', [ProjectMemberController::class, 'addMember']);
 Route::get('/projects/{projectId}/members', [ProjectMemberController::class, 'getMembers']);
+
 Route::get('/search-users', [ProjectMemberController::class, 'searchUsers']);
