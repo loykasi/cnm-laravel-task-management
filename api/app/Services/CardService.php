@@ -20,6 +20,8 @@ class CardService
         $cardCount = Card::where('listId', $listId)->count();
         $card = Card::create([
             'name' => $name,
+            // 'description' => $desc,
+            // 'comment' => $cmt,
             'listId' => $listId,
             'order' => $cardCount
         ]);
@@ -30,7 +32,10 @@ class CardService
     }
 
 
+
+
     public function update($cardId, $fromListId, $toListId, $projectId, $name, $desc, $order)
+
     {
         $card = Card::find($cardId);
 
@@ -41,9 +46,11 @@ class CardService
         if ($name !== null) {
             $card->name = $name;
 
+
             if ($desc !== null) {
                 $card->description = $desc;
             }
+
 
             $card->save();
         }

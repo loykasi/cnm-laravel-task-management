@@ -89,7 +89,7 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
                 // setUserCard({...userCard, users: newUser});
                 setUserCard((prev) => ({
                     ...prev,
-                    users: [...(prev.users || []), {user: newUser}],
+                    users: [...(prev.users || []), { user: newUser }],
                 }));
                 console.log("vừa thêm vô", userCard);
                 setNewUserEmail("");
@@ -148,18 +148,18 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
 
         // Thêm bình luận vào state
         setComments([...comments, newCommentObj]);
-        
+
         // Gửi yêu cầu POST API để lưu bình luận (tùy thuộc vào API của bạn)
         if (localCard.id) {
             axios.post(`http://localhost:8000/api/cards/${localCard.id}/comments`, newCommentObj, {
                 headers: { Authorization: `Bearer ${token}` },
             })
-            .then(response => {
-                console.log('Comment added:', response.data);
-            })
-            .catch(error => {
-                console.error('Error adding comment:', error);
-            });
+                .then(response => {
+                    console.log('Comment added:', response.data);
+                })
+                .catch(error => {
+                    console.error('Error adding comment:', error);
+                });
         }
 
         setNewComment("");  // Reset input
@@ -168,9 +168,10 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
     if (!isOpen || !card || isLoadingComments) return null;
 
     return (
+
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-20 z-50">
-            <div className="bg-white rounded-lg shadow-lg w-3/5 w- p-6">
-                <div className="flex justify-between items-center mb-4">
+            <div className="bg-white top-10 bottom-10  rounded-lg shadow-lg w-3/5  h-[96vh] p-6 overflow-y-auto m-4 scrollbar-hidden">
+                <div className="flex justify-between items-center mb-4 ">
                     <h2 className="text-lg font-semibold">Edit Card</h2>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
                         ✖
@@ -234,28 +235,28 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
                             {userCard?.users?.length > 0 ? (
                                 userCard.users.map((userObject, index) => {
                                     if (userObject?.user) {
-                                    // Kiểm tra nếu user tồn tại
-                                    return (
-                                        <li key={userObject.user.id} className="flex justify-between items-center">
-                                        <span>{userObject.user.email}</span>
-                                        <button
-                                            onClick={() => removeUserFromCard(userObject.user.id)}
-                                            className="text-red-600 hover:underline"
-                                        >
-                                            Remove
-                                        </button>
-                                        </li>
-                                    );
+                                        // Kiểm tra nếu user tồn tại
+                                        return (
+                                            <li key={userObject.user.id} className="flex justify-between items-center">
+                                                <span>{userObject.user.email}</span>
+                                                <button
+                                                    onClick={() => removeUserFromCard(userObject.user.id)}
+                                                    className="text-red-600 hover:underline"
+                                                >
+                                                    Remove
+                                                </button>
+                                            </li>
+                                        );
                                     } else {
-                                    // Trường hợp user không hợp lệ
-                                    return (
-                                        <p key={index} className="text-red-500">
-                                        Invalid user data
-                                        </p>
-                                    );
+                                        // Trường hợp user không hợp lệ
+                                        return (
+                                            <p key={index} className="text-red-500">
+                                                Invalid user data
+                                            </p>
+                                        );
                                     }
                                 })
-                                ) : (
+                            ) : (
                                 <p>No users assigned to this card.</p>
                             )}
 
@@ -281,7 +282,7 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
                     {/* Hiển thị bình luận */}
                     <div className="mt-6">
                         <h3 className="text-sm font-semibold">Comments</h3>
-                        <div className="h-72 space-y-4 mt-4 overflow-scroll overflow-x-hidden">
+                        <div className="h-72 space-y-4 mt-4 overflow-scroll overflow-x-hidden scrollbar-hidden">
                             {comments?.map((comment) => (
                                 <div key={comment.id} className="p-2 border-b">
                                     <p className="font-medium">{comment.author}</p>
@@ -325,6 +326,7 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
                 </div>
             </div>
         </div>
+
     );
 }
 

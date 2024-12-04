@@ -66,14 +66,16 @@ class CardController extends Controller
     public function store(StoreRequest $request)
     {
         $fields = $request->validated();
+
         $result = $this->cardService->store($fields['name'], $fields['listId'], $fields['projectId']);
 
         if ($result)
         {
-            return response($result, 200);
+            return response()->json($result, 200);
+
         }
 
-        return response([
+        return response()->json([
             'message' => 'failed'
         ], 400);
     }
@@ -88,16 +90,20 @@ class CardController extends Controller
             $request['name'],
             $request['description'],
             $request['order'],
+
+            $request['description'],
+            $request['comment'],
+
         );
 
         if ($result)
         {
-            return response([
+            return response()->json([
                 'message' => 'card updated'
             ], 200);
         }
 
-        return response([
+        return response()->json([
             'message' => 'failed'
         ], 400);
     }

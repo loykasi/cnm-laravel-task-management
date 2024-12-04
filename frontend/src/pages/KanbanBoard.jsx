@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useToggleState } from "../hooks/useToggleState"
+import UserGroupDisplay from "../Component/UserGroupDisplay.jsx"
+import Addmember from "../Component/Addmember.jsx"
 import axios from "axios";
 import EditCardModal from "../Component/EditCardModal";
 
@@ -12,6 +14,10 @@ const KanbanBoard = () => {
 
     const [project, setProject] = useState(null);
     const projectRef = useRef(null);
+    const [showUserGroupDisplay, setShowUserGroupDisplay] = useState(false);
+    const [showAddmember, setShowAddmember] = useState(false);
+
+
 
     const [editingListTitle, setEditingListTitle] = useState("");
     const [editingCardTitle, setEditingCardTitle] = useState("");
@@ -221,6 +227,64 @@ const KanbanBoard = () => {
                 });
         }
     }
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [currentCard, setCurrentCard] = useState(null);
+
+    function openModal(cardId, listId) {
+        const list = project.lists.find((list) => list.id === listId);
+        if (!list) {
+            console.error("List not found");
+            return;
+        }
+
+        const card = list.cards.find((card) => card.id === cardId);
+        if (!card) {
+            console.error("Card not found");
+            return;
+        }
+
+        console.log("Card found:", card);
+        setCurrentCard(card);
+        setModalOpen(true);
+    }
+
+    function closeModal() {
+        setModalOpen(false);
+    }
+
+    function saveCardChanges(updatedCard) {
+        updateProject((p) => {
+            const list = p.lists.find((l) => l.id === updatedCard.listId);
+            if (list == null) return false;
+
+            const cardIndex = list.cards.findIndex((c) => c.id === updatedCard.id);
+            list.cards[cardIndex] = updatedCard;
+
+            setEditingCardTitle(updatedCard.name);
+        });
+
+        const token = localStorage.getItem("auth_token");
+        const listId = selectListId.current;
+        if (token) {
+            axios.put(`http://localhost:8000/api/card/${updatedCard.id}`, {
+                projectId: project.id,
+                name: updatedCard.name,
+                description: updatedCard.description,
+                fromListId: listId,
+                toListId: listId
+            }, {
+                headers: { Authorization: `Bearer ${token}`, "X-Socket-ID": window.Echo.socketId() }
+            })
+                .then(response => {
+                    console.log(response.data);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+
+        console.log(updatedCard);
+    }
 
     // edit list title
 
@@ -285,9 +349,11 @@ const KanbanBoard = () => {
         setProject(cloneProject);
     }
 
+
     function syncCreateCard() {
-        if (onActionListId == -1) return;
-        if (newCardTitle == "") return;
+        if (onActionListId === -1) return;
+        if (newCardTitle === "") return;
+
 
         const cloneProject = { ...project }
 
@@ -394,69 +460,6 @@ const KanbanBoard = () => {
                 });
         }
     }
-
-    /* Begin edit card modal */
-
-    const [isModalOpen, setModalOpen] = useState(false);
-    const [currentCard, setCurrentCard] = useState(null);
-
-    function openModal(cardId, listId) {
-        const list = project.lists.find((list) => list.id === listId);
-        if (!list) {
-            console.error("List not found");
-            return;
-        }
-
-        const card = list.cards.find((card) => card.id === cardId);
-        if (!card) {
-            console.error("Card not found");
-            return;
-        }
-
-        console.log("Card found:", card);
-        setCurrentCard(card);
-        setModalOpen(true);
-    }
-
-    function closeModal() {
-        setModalOpen(false);
-    }
-
-    function saveCardChanges(updatedCard) {
-        updateProject((p) => {
-            const list = p.lists.find((l) => l.id === updatedCard.listId);
-            if (list == null) return false;
-
-            const cardIndex = list.cards.findIndex((c) => c.id === updatedCard.id);
-            list.cards[cardIndex] = updatedCard;
-
-            setEditingCardTitle(updatedCard.name);
-        });
-
-        const token = localStorage.getItem("auth_token");
-        const listId = selectListId.current;
-        if (token) {
-            axios.put(`http://localhost:8000/api/card/${updatedCard.id}`, {
-                projectId: project.id,
-                name: updatedCard.name,
-                description: updatedCard.description,
-                fromListId: listId,
-                toListId: listId
-            }, {
-                headers: { Authorization: `Bearer ${token}`, "X-Socket-ID": window.Echo.socketId() }
-            })
-            .then(response => {
-                console.log(response.data);
-            })
-            .catch(error => {
-                console.error(error);
-            });
-        }
-
-        console.log(updatedCard);
-    }
-
-    /* End edit card modal */
 
     // edit card title
     const editCardTitleInput = useRef([]);
@@ -904,17 +907,14 @@ const KanbanBoard = () => {
                         </button>
                     </div>
                     <ul className={"mt-2 space-y-3"}>
-
-                    {/* Render modal */}
-                    {isModalOpen && currentCard && (
-                        <EditCardModal
-                            isOpen={isModalOpen}
-                            card={currentCard}
-                            onClose={closeModal}
-                            onSave={saveCardChanges}
-                        />
-                    )}
-
+                        {isModalOpen && currentCard && (
+                            <EditCardModal
+                                isOpen={isModalOpen}
+                                card={currentCard}
+                                onClose={closeModal}
+                                onSave={saveCardChanges}
+                            />
+                        )}
                         {
                             list.cards.map((card, index2) => {
                                 return (
@@ -1073,18 +1073,20 @@ const KanbanBoard = () => {
                             </div>
                         </div>
                         <div className={"flex"}>
-                            <span className={"inline-flex p-1 border bg-gray-200 rounded"}>
-                                <button className={"px-2 py-1 rounded"}>
-                                    <svg className={" h-6 w-6 text-gray-600 "} height="512" viewBox="0 -53 384 384" width="512" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke="currentColor" d="M368 154.668H16c-8.832 0-16-7.168-16-16s7.168-16 16-16h352c8.832 0 16 7.168 16 16s-7.168 16-16 16zm0 0M368 32H16C7.168 32 0 24.832 0 16S7.168 0 16 0h352c8.832 0 16 7.168 16 16s-7.168 16-16 16zm0 0M368 277.332H16c-8.832 0-16-7.168-16-16s7.168-16 16-16h352c8.832 0 16 7.168 16 16s-7.168 16-16 16zm0 0" />
-                                    </svg>
-                                </button>
-                                <button className={"px-2 py-1 bg-white shadow rounded"}>
-                                    <svg className={" h-6 w-6 text-gray-600 "} height="512" viewBox="0 -53 384 384" width="512" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke="currentColor" d="M368 154.668H16c-8.832 0-16-7.168-16-16s7.168-16 16-16h352c8.832 0 16 7.168 16 16s-7.168 16-16 16zm0 0M368 32H16C7.168 32 0 24.832 0 16S7.168 0 16 0h352c8.832 0 16 7.168 16 16s-7.168 16-16 16zm0 0M368 277.332H16c-8.832 0-16-7.168-16-16s7.168-16 16-16h352c8.832 0 16 7.168 16 16s-7.168 16-16 16zm0 0" />
-                                    </svg>
-                                </button>
-                            </span>
+                            <button className={"px-2 py-1 bg-white shadow rounded mr-2"}
+                                onClick={() => setShowAddmember(!showAddmember)
+                                }
+                            >
+                                {showAddmember ? "Hide Add" : "Add Member"}
+                            </button>
+                            {showAddmember && <Addmember id={project.id} onClose={() => setShowAddmember(false)} />}
+                            <button className={"px-2 py-1 bg-white shadow rounded"}
+                                onClick={() => setShowUserGroupDisplay(!showUserGroupDisplay)
+                                }
+                            >
+                                {showUserGroupDisplay ? "Hide Members" : "Show Members"}
+                            </button>
+                            {showUserGroupDisplay && <UserGroupDisplay id={project.id} onClose={() => setShowUserGroupDisplay(false)} />}
                             <button
                                 onClick={() => { openCreateList() }}
                                 className={"ml-5 flex items-center pl-2 pr-4 py-1 text-sm font-medium text-white bg-gray-800 rounded hover:bg-gray-700"}
@@ -1191,6 +1193,7 @@ const KanbanBoard = () => {
                         </div>
                     }
                 </main>
+
             </div>
         </>
     );

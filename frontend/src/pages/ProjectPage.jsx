@@ -3,6 +3,7 @@ import { FiEdit2, FiTrash2, FiPlus, FiCheck, FiClock, FiFilter } from "react-ico
 import { BsThreeDotsVertical } from "react-icons/bs";
 import useFetchProject from "../api/getProject.js";
 import NewProjectForm from "../Component/NewProjectForm.jsx";
+import { Link, useNavigate } from 'react-router-dom';
 const ProjectPage = () => {
     const { projectData, error, refetch } = useFetchProject();
     const [projects, setProjects] = useState([]);
@@ -141,7 +142,10 @@ const ProjectPage = () => {
                                                 <BsThreeDotsVertical />
                                             </button>
                                         </div>
-                                        <h3 className="text-xl font-semibold text-gray-900 mb-2">{project.name}</h3>
+                                        <Link to={`/home/project/${project.id}`}>
+                                            <h3 className="text-xl font-semibold text-gray-900 mb-2">{project.name}</h3>
+                                        </Link>
+
                                         <p className="text-gray-600 mb-4">{project.description}</p>
                                         <div className="mb-4">
                                             <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
