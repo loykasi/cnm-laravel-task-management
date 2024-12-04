@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useToggleState } from "../hooks/useToggleState"
 import axios from "axios";
-import EditCardModal from "../Component/EditCardModal";
 
 const KanbanBoard = () => {
     const [createList, toggleCreateList, enableCreateList] = useToggleState(false);
@@ -278,8 +277,8 @@ const KanbanBoard = () => {
     }
 
     function syncCreateCard() {
-        if (onActionListId == -1) return;
-        if (newCardTitle == "") return;
+        if (onActionListId === -1) return;
+        if (newCardTitle === "") return;
 
         const cloneProject = { ...project }
 
@@ -386,69 +385,6 @@ const KanbanBoard = () => {
                 });
         }
     }
-
-    /* Begin edit card modal */
-
-    const [isModalOpen, setModalOpen] = useState(false);
-    const [currentCard, setCurrentCard] = useState(null);
-
-    function openModal(cardId, listId) {
-        const list = project.lists.find((list) => list.id === listId);
-        if (!list) {
-            console.error("List not found");
-            return;
-        }
-
-        const card = list.cards.find((card) => card.id === cardId);
-        if (!card) {
-            console.error("Card not found");
-            return;
-        }
-
-        console.log("Card found:", card);
-        setCurrentCard(card);
-        setModalOpen(true);
-    }
-
-    function closeModal() {
-        setModalOpen(false);
-    }
-
-    function saveCardChanges(updatedCard) {
-        updateProject((p) => {
-            const list = p.lists.find((l) => l.id === updatedCard.listId);
-            if (list == null) return false;
-
-            const cardIndex = list.cards.findIndex((c) => c.id === updatedCard.id);
-            list.cards[cardIndex] = updatedCard;
-
-            setEditingCardTitle(updatedCard.name);
-        });
-
-        const token = localStorage.getItem("auth_token");
-        const listId = selectListId.current;
-        if (token) {
-            axios.put(`http://localhost:8000/api/card/${updatedCard.id}`, {
-                projectId: project.id,
-                name: updatedCard.name,
-                description: updatedCard.description,
-                fromListId: listId,
-                toListId: listId
-            }, {
-                headers: { Authorization: `Bearer ${token}`, "X-Socket-ID": window.Echo.socketId() }
-            })
-            .then(response => {
-                console.log(response.data);
-            })
-            .catch(error => {
-                console.error(error);
-            });
-        }
-
-        console.log(updatedCard);
-    }
-
-    /* End edit card modal */
 
     // edit card title
     const editCardTitleInput = useRef([]);
@@ -897,16 +833,6 @@ const KanbanBoard = () => {
                     </div>
                     <ul className={"mt-2 space-y-3"}>
 
-                    {/* Render modal */}
-                    {isModalOpen && currentCard && (
-                        <EditCardModal
-                            isOpen={isModalOpen}
-                            card={currentCard}
-                            onClose={closeModal}
-                            onSave={saveCardChanges}
-                        />
-                    )}
-
                         {
                             list.cards.map((card, index2) => {
                                 return (
@@ -924,7 +850,7 @@ const KanbanBoard = () => {
                                         >
                                             <div className={"flex justify-between items-center h-7"}>
                                                 {!card.isEditing &&
-                                                    <p className={"block text-sm font-medium leading-snug text-gray-900 text-left cursor-pointer"} onClick={() => openModal(card.id, list.id)}>
+                                                    <p className={"block text-sm font-medium leading-snug text-gray-900 text-left"}>
                                                         {card.name}
                                                     </p>
                                                 }
