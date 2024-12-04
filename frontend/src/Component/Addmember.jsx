@@ -46,6 +46,7 @@ const Addmember = ({ id, onClose }) => {
                 }
             );
             fetchProjectMembers(); // Refresh members list
+            onClose();
         } catch (error) {
             console.error('Error adding member:', error);
         }

@@ -88,9 +88,13 @@ const Home = () => {
 
                     <nav className={"mt-8"}>
                         <h3 className={"text-xs font-semibold text-gray-600 uppercase tracking-wide text-left"}>Workspace</h3>
-                        <div className={"mt-2 -mx-3"}>
+                        <div className={"mt-2 -mx-3 space-y-2"}>
                             <Link to="/home" className={"flex justify-between items-center px-3 py-2 bg-gray-200 rounded-lg"}>
                                 <span className={"text-sm font-medium text-gray-900 "}>Project</span>
+                                {/* <span className={"text-xs font-semibold text-gray-700 "}>36</span> */}
+                            </Link>
+                            <Link to="/" className={"flex justify-between items-center px-3 py-2 bg-gray-200 rounded-lg"}>
+                                <span className={"text-sm font-medium text-gray-900 "}>Sign out</span>
                                 {/* <span className={"text-xs font-semibold text-gray-700 "}>36</span> */}
                             </Link>
                             {/* <a href="#" className={"flex justify-between items-center px-3 py-2 rounded-lg"}>

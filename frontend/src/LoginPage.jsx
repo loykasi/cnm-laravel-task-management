@@ -88,7 +88,8 @@ const LoginPage = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
         <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-2xl transform transition-all hover:scale-[1.01]">
           <div className="flex flex-col justify-center items-center">
-            <img className="" src={LogoUrl} alt="Logo" />
+            {/* <img className="" src={LogoUrl} alt="Logo" /> */}
+            <div className="font-medium text-3xl">STARVN</div>
             {/* <p className="mt-2 text-center font-bold text-sm text-indigo-600">
               Vui lòng đăng nhập để tiếp tục
             </p> */}
