@@ -745,11 +745,9 @@ const KanbanBoard = () => {
         if (echoListenRef.current) return;
         echoListenRef.current = true;
         window.Echo.private(`project.${id}`)
-
             .listen('ProjectUpdated', (e) => {
                 updateProjectFromChannel(e)
             })
-
             .listen('CardListCreated', (e) => {
                 addListFromChannel(e)
             })
@@ -907,14 +905,6 @@ const KanbanBoard = () => {
                         </button>
                     </div>
                     <ul className={"mt-2 space-y-3"}>
-                        {isModalOpen && currentCard && (
-                            <EditCardModal
-                                isOpen={isModalOpen}
-                                card={currentCard}
-                                onClose={closeModal}
-                                onSave={saveCardChanges}
-                            />
-                        )}
                         {
                             list.cards.map((card, index2) => {
                                 return (
@@ -1060,7 +1050,7 @@ const KanbanBoard = () => {
                             />
                             <div className={"flex ml-6"}>
                                 {project?.members.map(member => { return (
-                                    <span className={"-ml-2 rounded-full border-2 border-white"}>
+                                    <span key={member.id} className={"-ml-2 rounded-full border-2 border-white"}>
                                         <img
                                             className={"h-6 w-6 rounded-full object-cover"}
                                             src={`http://localhost:8000/storage/${member.avatar}`} alt="avatar"
@@ -1193,6 +1183,15 @@ const KanbanBoard = () => {
                         </div>
                     }
                 </main>
+
+                {isModalOpen && currentCard && (
+                    <EditCardModal
+                        isOpen={isModalOpen}
+                        card={currentCard}
+                        onClose={closeModal}
+                        onSave={saveCardChanges}
+                    />
+                )}
 
             </div>
         </>

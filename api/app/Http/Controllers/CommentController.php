@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageCreated;
 use App\Models\Card;
 use App\Models\Comment;
 use Illuminate\Http\Request;
@@ -30,6 +31,8 @@ class CommentController extends Controller
 
         // Lưu bình luận vào thẻ
         $card->comments()->save($comment);
+
+        broadcast(new MessageCreated($card->id, $comment))->toOthers();
 
         // Trả về phản hồi thành công với dữ liệu bình luận mới
         return response()->json([

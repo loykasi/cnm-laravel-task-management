@@ -9,6 +9,7 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
     const [newUserEmail, setNewUserEmail] = React.useState("");
     const [loading, setLoading] = React.useState(false);
     const [isLoadingComments, setIsLoadingComments] = React.useState(false);
+    const commentContainerRef = React.useRef();
 
     React.useEffect(() => {
         setLocalCard(card);
@@ -31,7 +32,9 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
         onClose();
     };
 
+    const echoListenRef = React.useRef(false);
     React.useEffect(() => {
+
         const token = localStorage.getItem("auth_token");
         if (isOpen && card) {
             setLocalCard({ ...card, users: card.users || [] }); // Đảm bảo users luôn là mảng
@@ -53,6 +56,13 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
                     //     users: response.data.users || [], // Đảm bảo users luôn tồn tại
                     // });
                     setIsLoadingComments(false); // Kết thúc tải dữ liệu
+
+                    if (echoListenRef.current) return;
+                    echoListenRef.current = true;
+                    window.Echo.private(`card.${response.data.id}`)
+                        .listen('MessageCreated', (e) => {
+                            addMessageFromChannel(e)
+                        })
                 })
                 .catch(error => {
                     console.error('Error fetching comments:', error);
@@ -60,6 +70,10 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
                 });
         }
     }, [isOpen, card]);
+
+    React.useEffect(() => {
+        commentContainerRef.current.scrollTop = commentContainerRef.current.scrollHeight
+    }, [comments])
 
     const addUserToCard = async (email) => {
         setLoading(true);
@@ -132,6 +146,17 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
         }
     };
 
+    async function addMessageFromChannel(e) {
+        console.log(e)
+        const newCommentObj = {
+            id: e.message.id,  // Tạo ID tạm thời cho bình luận
+            content: e.message.content,
+            author: e.message.author,  // Lấy email từ localStorage
+            timestamp: e.message.created_at
+        };
+        setComments(pre => [...pre, newCommentObj]);
+    }
+
     const handleAddComment = () => {
         const token = localStorage.getItem("auth_token");
         const newCommentObj = {
@@ -152,7 +177,7 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
         // Gửi yêu cầu POST API để lưu bình luận (tùy thuộc vào API của bạn)
         if (localCard.id) {
             axios.post(`http://localhost:8000/api/cards/${localCard.id}/comments`, newCommentObj, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "X-Socket-ID": window.Echo.socketId() },
             })
                 .then(response => {
                     console.log('Comment added:', response.data);
@@ -282,7 +307,7 @@ function EditCardModal({ isOpen, card, onClose, onSave }) {
                     {/* Hiển thị bình luận */}
                     <div className="mt-6">
                         <h3 className="text-sm font-semibold">Comments</h3>
-                        <div className="h-72 space-y-4 mt-4 overflow-scroll overflow-x-hidden scrollbar-hidden">
+                        <div ref={commentContainerRef} className="h-72 space-y-4 mt-4 overflow-scroll overflow-x-hidden scrollbar-hidden">
                             {comments?.map((comment) => (
                                 <div key={comment.id} className="p-2 border-b">
                                     <p className="font-medium">{comment.author}</p>

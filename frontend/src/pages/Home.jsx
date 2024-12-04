@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Route, Routes, Outlet } from "react-router-dom";
-import KanbanBoard from "./KanbanBoard";
+import KanbanBoard from "./KanbanBoard.1";
 
 import { useParams } from "react-router-dom";
 import useFetchProfile from "../api/getProfile.js";
