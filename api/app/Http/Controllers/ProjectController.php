@@ -88,7 +88,7 @@ class ProjectController extends Controller
     public function update(UpdateRequest $request) {
         $fields = $request->validated();
 
-        $result = $this->projectService->update($fields['id'], $fields['name'], $fields['description']);
+        $result = $this->projectService->update($fields['id'], $fields['name'], null);
 
         if ($result) {
             return response()->json([

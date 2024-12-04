@@ -36,7 +36,8 @@ class ProjectService
 
         if ($project !== null) {
             $project->name = $name;
-            $project->description = $desc;
+            if ($desc !== null)
+                $project->description = $desc;
             $project->save();
         }
         
@@ -51,7 +52,7 @@ class ProjectService
     }
 
     public function getProjectDetail($projectId) {
-        $project = Project::with(['lists.cards'])
+        $project = Project::with(['lists.cards.users'])
                         ->where('id', $projectId)
                         ->first();
 

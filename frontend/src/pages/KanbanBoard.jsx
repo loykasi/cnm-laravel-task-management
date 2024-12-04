@@ -115,6 +115,14 @@ const KanbanBoard = () => {
     }, [editingProjectTitle]);
     // list
 
+    function openCreateList() {
+        enableCreateList();
+        setEditingListTitle("");
+        setTimeout(() => {
+            listMenuRef.current.container.scrollLeft = listMenuRef.current.container.scrollWidth
+        }, 0);
+    }
+
     function syncCreateList() {
         toggleCreateList();
 
@@ -948,23 +956,20 @@ const KanbanBoard = () => {
                                                 </button>
                                             </div>
                                             <div className={"flex items-baseline mt-2"}>
-                                                {/* <div className={"text-sm text-gray-600"}>
-                        <time dateTime="2019-09-14">Sep 14</time>
-                        </div>
-                        <div className={"mt-2"}>
-                        <span className={"px-2 py-1 leading-tight inline-flex items-center bg-teal-100 rounded"}>
-                            <svg className={"h-2 w-2 text-teal-500"} viewBox="0 0 8 8" fill="currentColor">
-                            <circle cx="4" cy="4" r="3"/>
-                            </svg>
-                            <span className={"text-sm ml-2 font-medium text-teal-900"}>Feature Request</span>
-                        </span>
-                        </div> */}
-                                                {/* <span>
-                        <img
-                            className={"h-6 w-6 rounded-full"}
-                            src="https://i.pravatar.cc/100" alt="avatar"
-                        />
-                        </span>  */}
+                                            <span>
+                                            {
+                                                card.users.map((user, index3) => { return (
+                                                    <img
+                                                        key={index3}
+                                                        className={"h-6 w-6 rounded-full"}
+                                                        src={`http://localhost:8000/storage/${user.avatar}`} alt="avatar"
+                                                        onError={(e) => {
+                                                            e.target.src = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e";
+                                                        }}
+                                                    />
+                                                )})
+                                            }
+                                            </span> 
                                             </div>
                                         </div>
                                     </li>
@@ -1081,7 +1086,7 @@ const KanbanBoard = () => {
                                 </button>
                             </span>
                             <button
-                                onClick={() => { enableCreateList() }}
+                                onClick={() => { openCreateList() }}
                                 className={"ml-5 flex items-center pl-2 pr-4 py-1 text-sm font-medium text-white bg-gray-800 rounded hover:bg-gray-700"}
                             >
                                 <svg className={"h-5 w-5"} viewBox="0 0 24 24" fill="none">
